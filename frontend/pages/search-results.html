@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - BookStore</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="../index.html">
+                        <i class="fas fa-book-open"></i>
+                        <span>BookStore</span>
+                    </a>
+                </div>
+                
+                <div class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="../index.html" class="nav-link">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link">Categories <i class="fas fa-chevron-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="category.html?cat=fiction">Fiction</a></li>
+                                <li><a href="category.html?cat=non-fiction">Non-Fiction</a></li>
+                                <li><a href="category.html?cat=sci-fi">Science Fiction</a></li>
+                                <li><a href="category.html?cat=mystery">Mystery & Thriller</a></li>
+                                <li><a href="category.html?cat=romance">Romance</a></li>
+                                <li><a href="category.html?cat=biography">Biography</a></li>
+                                <li><a href="category.html?cat=history">History</a></li>
+                                <li><a href="category.html?cat=self-help">Self-Help</a></li>
+                                <li><a href="category.html?cat=business">Business</a></li>
+                                <li><a href="category.html?cat=technology">Technology</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="bestsellers.html" class="nav-link">Bestsellers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="new-releases.html" class="nav-link">New Releases</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="deals.html" class="nav-link">Deals</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Search books, authors...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="user-actions">
+                        <a href="wishlist.html" class="action-btn" title="Wishlist">
+                            <i class="fas fa-heart"></i>
+                            <span class="badge" id="wishlistCount">0</span>
+                        </a>
+                        <a href="cart.html" class="action-btn" title="Shopping Cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge" id="cartCount">0</span>
+                        </a>
+                        <div class="user-menu">
+                            <button class="user-btn" id="userBtn">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="login.html" id="loginLink">Login</a>
+                                <a href="register.html" id="registerLink">Register</a>
+                                <a href="profile.html" id="profileLink" style="display: none;">My Profile</a>
+                                <a href="orders.html" id="ordersLink" style="display: none;">My Orders</a>
+                                <a href="#" id="logoutLink" style="display: none;">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Search Results Section -->
+    <section class="search-results-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>Search Results</h1>
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Search Results</span>
+                </nav>
+            </div>
+
+            <div class="search-layout">
+                <!-- Search Filters -->
+                <div class="search-filters">
+                    <div class="filter-card">
+                        <h3>Search Filters</h3>
+                        <button class="clear-filters" onclick="clearAllFilters()">Clear All</button>
+                    </div>
+
+                    <!-- Search Query -->
+                    <div class="filter-card">
+                        <h4>Search Query</h4>
+                        <div class="search-query" id="searchQuery">
+                            <!-- Search query will be displayed here -->
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="filter-card">
+                        <h4>Price Range</h4>
+                        <div class="price-filter">
+                            <div class="price-inputs">
+                                <input type="number" id="minPrice" placeholder="Min" min="0">
+                                <span>-</span>
+                                <input type="number" id="maxPrice" placeholder="Max" min="0">
+                            </div>
+                            <button class="btn btn-secondary btn-small" onclick="applyPriceFilter()">Apply</button>
+                        </div>
+                        <div class="price-slider">
+                            <input type="range" id="priceRange" min="0" max="100" value="50">
+                            <div class="price-labels">
+                                <span>$0</span>
+                                <span>$100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="filter-card">
+                        <h4>Categories</h4>
+                        <div class="filter-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="fiction">
+                                <span class="checkmark"></span>
+                                Fiction
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="non-fiction">
+                                <span class="checkmark"></span>
+                                Non-Fiction
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="mystery">
+                                <span class="checkmark"></span>
+                                Mystery & Thriller
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="romance">
+                                <span class="checkmark"></span>
+                                Romance
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="sci-fi">
+                                <span class="checkmark"></span>
+                                Science Fiction
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="biography">
+                                <span class="checkmark"></span>
+                                Biography
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="business">
+                                <span class="checkmark"></span>
+                                Business
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="self-help">
+                                <span class="checkmark"></span>
+                                Self-Help
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Format Filter -->
+                    <div class="filter-card">
+                        <h4>Format</h4>
+                        <div class="filter-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="format" value="hardcover">
+                                <span class="checkmark"></span>
+                                Hardcover
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="format" value="paperback">
+                                <span class="checkmark"></span>
+                                Paperback
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="format" value="ebook">
+                                <span class="checkmark"></span>
+                                E-Book
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="format" value="audiobook">
+                                <span class="checkmark"></span>
+                                Audiobook
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Rating Filter -->
+                    <div class="filter-card">
+                        <h4>Rating</h4>
+                        <div class="filter-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="rating" value="5">
+                                <span class="checkmark"></span>
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                & up
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="rating" value="4">
+                                <span class="checkmark"></span>
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                & up
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="rating" value="3">
+                                <span class="checkmark"></span>
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                                & up
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Availability Filter -->
+                    <div class="filter-card">
+                        <h4>Availability</h4>
+                        <div class="filter-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availability" value="in-stock">
+                                <span class="checkmark"></span>
+                                In Stock
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availability" value="on-sale">
+                                <span class="checkmark"></span>
+                                On Sale
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="availability" value="new">
+                                <span class="checkmark"></span>
+                                New Releases
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Language Filter -->
+                    <div class="filter-card">
+                        <h4>Language</h4>
+                        <div class="filter-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="language" value="english" checked>
+                                <span class="checkmark"></span>
+                                English
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="language" value="spanish">
+                                <span class="checkmark"></span>
+                                Spanish
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="language" value="french">
+                                <span class="checkmark"></span>
+                                French
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="language" value="german">
+                                <span class="checkmark"></span>
+                                German
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results Main -->
+                <div class="search-main">
+                    <!-- Search Toolbar -->
+                    <div class="search-toolbar">
+                        <div class="results-info">
+                            <span id="resultsCount">Showing 1-20 of 150 results</span>
+                            <span id="searchTime">Search completed in 0.5 seconds</span>
+                        </div>
+                        <div class="toolbar-actions">
+                            <div class="view-toggle">
+                                <button class="view-btn active" data-view="grid">
+                                    <i class="fas fa-th"></i>
+                                </button>
+                                <button class="view-btn" data-view="list">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                            <div class="sort-dropdown">
+                                <label for="sortSelect">Sort by:</label>
+                                <select id="sortSelect" onchange="sortResults()">
+                                    <option value="relevance">Relevance</option>
+                                    <option value="price-low">Price: Low to High</option>
+                                    <option value="price-high">Price: High to Low</option>
+                                    <option value="rating">Customer Rating</option>
+                                    <option value="newest">Newest First</option>
+                                    <option value="bestselling">Bestselling</option>
+                                    <option value="title">Title A-Z</option>
+                                    <option value="author">Author A-Z</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Suggestions -->
+                    <div class="search-suggestions" id="searchSuggestions" style="display: none;">
+                        <h3>Did you mean:</h3>
+                        <div class="suggestions-list">
+                            <!-- Search suggestions will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- No Results -->
+                    <div class="no-results" id="noResults" style="display: none;">
+                        <div class="no-results-content">
+                            <i class="fas fa-search"></i>
+                            <h3>No results found</h3>
+                            <p>Try adjusting your search terms or filters</p>
+                            <div class="no-results-suggestions">
+                                <h4>Suggestions:</h4>
+                                <ul>
+                                    <li>Check your spelling</li>
+                                    <li>Try more general keywords</li>
+                                    <li>Remove some filters</li>
+                                    <li>Try different search terms</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Grid -->
+                    <div class="results-container">
+                        <div class="books-grid" id="searchResults">
+                            <!-- Search results will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" id="searchPagination">
+                        <button class="pagination-btn prev" onclick="previousPage()">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <div class="page-numbers" id="pageNumbers">
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <span class="page-dots">...</span>
+                            <button class="page-btn">10</button>
+                        </div>
+                        <button class="pagination-btn next" onclick="nextPage()">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BookStore</h3>
+                    <p>Your trusted source for quality books and exceptional reading experiences.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="shipping.html">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                        <p><i class="fas fa-envelope"></i> info@bookstore.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Book Street, Reading City, RC 12345</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 BookStore. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/search-results.js"></script>
+</body>
+</html> 

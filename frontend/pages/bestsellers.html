@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestsellers - BookStore</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="../index.html">
+                        <i class="fas fa-book-open"></i>
+                        <span>BookStore</span>
+                    </a>
+                </div>
+                
+                <div class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="../index.html" class="nav-link">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link">Categories <i class="fas fa-chevron-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="category.html?cat=fiction">Fiction</a></li>
+                                <li><a href="category.html?cat=non-fiction">Non-Fiction</a></li>
+                                <li><a href="category.html?cat=sci-fi">Science Fiction</a></li>
+                                <li><a href="category.html?cat=mystery">Mystery & Thriller</a></li>
+                                <li><a href="category.html?cat=romance">Romance</a></li>
+                                <li><a href="category.html?cat=biography">Biography</a></li>
+                                <li><a href="category.html?cat=history">History</a></li>
+                                <li><a href="category.html?cat=self-help">Self-Help</a></li>
+                                <li><a href="category.html?cat=business">Business</a></li>
+                                <li><a href="category.html?cat=technology">Technology</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="bestsellers.html" class="nav-link active">Bestsellers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="new-releases.html" class="nav-link">New Releases</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="deals.html" class="nav-link">Deals</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Search books, authors...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="user-actions">
+                        <a href="wishlist.html" class="action-btn" title="Wishlist">
+                            <i class="fas fa-heart"></i>
+                            <span class="badge" id="wishlistCount">0</span>
+                        </a>
+                        <a href="cart.html" class="action-btn" title="Shopping Cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge" id="cartCount">0</span>
+                        </a>
+                        <div class="user-menu">
+                            <button class="user-btn" id="userBtn">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="login.html" id="loginLink">Login</a>
+                                <a href="register.html" id="registerLink">Register</a>
+                                <a href="profile.html" id="profileLink" style="display: none;">My Profile</a>
+                                <a href="orders.html" id="ordersLink" style="display: none;">My Orders</a>
+                                <a href="#" id="logoutLink" style="display: none;">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Bestsellers Hero -->
+    <section class="bestsellers-hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Bestsellers</h1>
+                <p>Discover the most popular books that readers love</p>
+                <div class="bestsellers-tabs">
+                    <button class="tab-btn active" data-period="all-time">All Time</button>
+                    <button class="tab-btn" data-period="this-month">This Month</button>
+                    <button class="tab-btn" data-period="this-week">This Week</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top 10 Bestsellers -->
+    <section class="top-bestsellers">
+        <div class="container">
+            <h2>Top 10 Bestsellers</h2>
+            <div class="top-books-list" id="topBooksList">
+                <!-- Top books will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Bestsellers -->
+    <section class="category-bestsellers">
+        <div class="container">
+            <h2>Bestsellers by Category</h2>
+            
+            <!-- Fiction Bestsellers -->
+            <div class="category-section">
+                <div class="section-header">
+                    <h3>Fiction Bestsellers</h3>
+                    <a href="category.html?cat=fiction" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="books-grid" id="fictionBestsellers">
+                    <!-- Fiction bestsellers will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Non-Fiction Bestsellers -->
+            <div class="category-section">
+                <div class="section-header">
+                    <h3>Non-Fiction Bestsellers</h3>
+                    <a href="category.html?cat=non-fiction" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="books-grid" id="nonFictionBestsellers">
+                    <!-- Non-fiction bestsellers will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Mystery & Thriller Bestsellers -->
+            <div class="category-section">
+                <div class="section-header">
+                    <h3>Mystery & Thriller Bestsellers</h3>
+                    <a href="category.html?cat=mystery" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="books-grid" id="mysteryBestsellers">
+                    <!-- Mystery bestsellers will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Romance Bestsellers -->
+            <div class="category-section">
+                <div class="section-header">
+                    <h3>Romance Bestsellers</h3>
+                    <a href="category.html?cat=romance" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="books-grid" id="romanceBestsellers">
+                    <!-- Romance bestsellers will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Business Bestsellers -->
+            <div class="category-section">
+                <div class="section-header">
+                    <h3>Business Bestsellers</h3>
+                    <a href="category.html?cat=business" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="books-grid" id="businessBestsellers">
+                    <!-- Business bestsellers will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New York Times Bestsellers -->
+    <section class="nyt-bestsellers">
+        <div class="container">
+            <div class="section-header">
+                <h2>New York Times Bestsellers</h2>
+                <p>Updated weekly with the latest bestseller lists</p>
+            </div>
+            
+            <div class="nyt-tabs">
+                <button class="nyt-tab active" data-list="fiction">Fiction</button>
+                <button class="nyt-tab" data-list="nonfiction">Non-Fiction</button>
+                <button class="nyt-tab" data-list="childrens">Children's</button>
+                <button class="nyt-tab" data-list="young-adult">Young Adult</button>
+            </div>
+            
+            <div class="nyt-list" id="nytList">
+                <!-- NYT bestsellers will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Award Winners -->
+    <section class="award-winners">
+        <div class="container">
+            <h2>Award-Winning Bestsellers</h2>
+            <div class="awards-grid">
+                <div class="award-category">
+                    <h3>Pulitzer Prize Winners</h3>
+                    <div class="books-grid" id="pulitzerWinners">
+                        <!-- Pulitzer winners will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="award-category">
+                    <h3>National Book Award Winners</h3>
+                    <div class="books-grid" id="nationalBookWinners">
+                        <!-- National Book Award winners will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="award-category">
+                    <h3>Man Booker Prize Winners</h3>
+                    <div class="books-grid" id="manBookerWinners">
+                        <!-- Man Booker winners will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bestseller Stats -->
+    <section class="bestseller-stats">
+        <div class="container">
+            <h2>Bestseller Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>1.2M+</h3>
+                        <p>Books Sold This Year</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>500K+</h3>
+                        <p>Happy Readers</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>4.8</h3>
+                        <p>Average Rating</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>50K+</h3>
+                        <p>Book Titles</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated with Bestsellers</h2>
+                <p>Get weekly updates on the latest bestsellers and exclusive deals.</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" placeholder="Enter your email address" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BookStore</h3>
+                    <p>Your trusted source for quality books and exceptional reading experiences.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="shipping.html">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                        <p><i class="fas fa-envelope"></i> info@bookstore.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Book Street, Reading City, RC 12345</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 BookStore. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/bestsellers.js"></script>
+</body>
+</html> 

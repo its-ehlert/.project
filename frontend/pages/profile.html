@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - BookStore</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="../index.html">
+                        <i class="fas fa-book-open"></i>
+                        <span>BookStore</span>
+                    </a>
+                </div>
+                
+                <div class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="../index.html" class="nav-link">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link">Categories <i class="fas fa-chevron-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="category.html?cat=fiction">Fiction</a></li>
+                                <li><a href="category.html?cat=non-fiction">Non-Fiction</a></li>
+                                <li><a href="category.html?cat=sci-fi">Science Fiction</a></li>
+                                <li><a href="category.html?cat=mystery">Mystery & Thriller</a></li>
+                                <li><a href="category.html?cat=romance">Romance</a></li>
+                                <li><a href="category.html?cat=biography">Biography</a></li>
+                                <li><a href="category.html?cat=history">History</a></li>
+                                <li><a href="category.html?cat=self-help">Self-Help</a></li>
+                                <li><a href="category.html?cat=business">Business</a></li>
+                                <li><a href="category.html?cat=technology">Technology</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="bestsellers.html" class="nav-link">Bestsellers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="new-releases.html" class="nav-link">New Releases</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="deals.html" class="nav-link">Deals</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-actions">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Search books, authors...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="user-actions">
+                        <a href="wishlist.html" class="action-btn" title="Wishlist">
+                            <i class="fas fa-heart"></i>
+                            <span class="badge" id="wishlistCount">0</span>
+                        </a>
+                        <a href="cart.html" class="action-btn" title="Shopping Cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge" id="cartCount">0</span>
+                        </a>
+                        <div class="user-menu">
+                            <button class="user-btn" id="userBtn">
+                                <i class="fas fa-user"></i>
+                            </button>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="login.html" id="loginLink">Login</a>
+                                <a href="register.html" id="registerLink">Register</a>
+                                <a href="profile.html" id="profileLink" style="display: none;">My Profile</a>
+                                <a href="orders.html" id="ordersLink" style="display: none;">My Orders</a>
+                                <a href="#" id="logoutLink" style="display: none;">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>My Profile</h1>
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>My Profile</span>
+                </nav>
+            </div>
+
+            <div class="profile-layout">
+                <!-- Profile Sidebar -->
+                <div class="profile-sidebar">
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            <img src="../images/default-avatar.png" alt="Profile" id="profileAvatar">
+                            <button class="avatar-upload" onclick="uploadAvatar()">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName">John Doe</h3>
+                            <p id="profileEmail">john@example.com</p>
+                            <p class="member-since">Member since <span id="memberSince">January 2024</span></p>
+                        </div>
+                    </div>
+
+                    <nav class="profile-nav">
+                        <a href="#overview" class="nav-link active" data-tab="overview">
+                            <i class="fas fa-home"></i>
+                            <span>Overview</span>
+                        </a>
+                        <a href="#personal" class="nav-link" data-tab="personal">
+                            <i class="fas fa-user"></i>
+                            <span>Personal Information</span>
+                        </a>
+                        <a href="#addresses" class="nav-link" data-tab="addresses">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Addresses</span>
+                        </a>
+                        <a href="#orders" class="nav-link" data-tab="orders">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>Order History</span>
+                        </a>
+                        <a href="#wishlist" class="nav-link" data-tab="wishlist">
+                            <i class="fas fa-heart"></i>
+                            <span>Wishlist</span>
+                        </a>
+                        <a href="#reviews" class="nav-link" data-tab="reviews">
+                            <i class="fas fa-star"></i>
+                            <span>My Reviews</span>
+                        </a>
+                        <a href="#preferences" class="nav-link" data-tab="preferences">
+                            <i class="fas fa-cog"></i>
+                            <span>Preferences</span>
+                        </a>
+                        <a href="#security" class="nav-link" data-tab="security">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Security</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Profile Content -->
+                <div class="profile-content">
+                    <!-- Overview Tab -->
+                    <div class="profile-tab active" id="overview">
+                        <div class="tab-header">
+                            <h2>Account Overview</h2>
+                        </div>
+                        
+                        <div class="overview-stats">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="totalOrders">0</h3>
+                                    <p>Total Orders</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="wishlistCount">0</h3>
+                                    <p>Wishlist Items</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="reviewCount">0</h3>
+                                    <p>Reviews Written</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <h3 id="booksRead">0</h3>
+                                    <p>Books Read</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="recent-activity">
+                            <h3>Recent Activity</h3>
+                            <div class="activity-list" id="recentActivity">
+                                <!-- Recent activity will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information Tab -->
+                    <div class="profile-tab" id="personal">
+                        <div class="tab-header">
+                            <h2>Personal Information</h2>
+                        </div>
+                        
+                        <form class="profile-form" id="personalForm">
+                            <div class="form-section">
+                                <h3>Basic Information</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" id="firstName" name="firstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" id="lastName" name="lastName" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" name="phone">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="dateOfBirth">Date of Birth</label>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="gender">Gender</label>
+                                    <select id="gender" name="gender">
+                                        <option value="">Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                        <option value="prefer-not">Prefer not to say</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Addresses Tab -->
+                    <div class="profile-tab" id="addresses">
+                        <div class="tab-header">
+                            <h2>Addresses</h2>
+                            <button class="btn btn-primary" onclick="addNewAddress()">
+                                <i class="fas fa-plus"></i> Add New Address
+                            </button>
+                        </div>
+                        
+                        <div class="addresses-list" id="addressesList">
+                            <!-- Addresses will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Order History Tab -->
+                    <div class="profile-tab" id="orders">
+                        <div class="tab-header">
+                            <h2>Order History</h2>
+                        </div>
+                        
+                        <div class="orders-list" id="ordersList">
+                            <!-- Orders will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Wishlist Tab -->
+                    <div class="profile-tab" id="wishlist">
+                        <div class="tab-header">
+                            <h2>My Wishlist</h2>
+                        </div>
+                        
+                        <div class="wishlist-items" id="wishlistItems">
+                            <!-- Wishlist items will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div class="profile-tab" id="reviews">
+                        <div class="tab-header">
+                            <h2>My Reviews</h2>
+                        </div>
+                        
+                        <div class="reviews-list" id="reviewsList">
+                            <!-- Reviews will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Preferences Tab -->
+                    <div class="profile-tab" id="preferences">
+                        <div class="tab-header">
+                            <h2>Preferences</h2>
+                        </div>
+                        
+                        <form class="preferences-form" id="preferencesForm">
+                            <div class="form-section">
+                                <h3>Communication Preferences</h3>
+                                <div class="preference-options">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="emailNewsletter">
+                                        <span class="checkmark"></span>
+                                        Email Newsletter
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="emailPromotions">
+                                        <span class="checkmark"></span>
+                                        Promotional Emails
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="emailOrders">
+                                        <span class="checkmark"></span>
+                                        Order Updates
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="smsNotifications">
+                                        <span class="checkmark"></span>
+                                        SMS Notifications
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h3>Reading Preferences</h3>
+                                <div class="form-group">
+                                    <label for="favoriteGenres">Favorite Genres</label>
+                                    <select id="favoriteGenres" name="favoriteGenres" multiple>
+                                        <option value="fiction">Fiction</option>
+                                        <option value="non-fiction">Non-Fiction</option>
+                                        <option value="mystery">Mystery & Thriller</option>
+                                        <option value="romance">Romance</option>
+                                        <option value="sci-fi">Science Fiction</option>
+                                        <option value="fantasy">Fantasy</option>
+                                        <option value="biography">Biography</option>
+                                        <option value="history">History</option>
+                                        <option value="self-help">Self-Help</option>
+                                        <option value="business">Business</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="readingGoal">Annual Reading Goal</label>
+                                    <input type="number" id="readingGoal" name="readingGoal" min="1" max="100">
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Save Preferences</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Security Tab -->
+                    <div class="profile-tab" id="security">
+                        <div class="tab-header">
+                            <h2>Security Settings</h2>
+                        </div>
+                        
+                        <div class="security-sections">
+                            <div class="security-section">
+                                <h3>Change Password</h3>
+                                <form class="password-form" id="passwordForm">
+                                    <div class="form-group">
+                                        <label for="currentPassword">Current Password</label>
+                                        <input type="password" id="currentPassword" name="currentPassword" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newPassword">New Password</label>
+                                        <input type="password" id="newPassword" name="newPassword" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmNewPassword">Confirm New Password</label>
+                                        <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Change Password</button>
+                                </form>
+                            </div>
+                            
+                            <div class="security-section">
+                                <h3>Two-Factor Authentication</h3>
+                                <div class="two-factor-status">
+                                    <span class="status-label">Status:</span>
+                                    <span class="status-value" id="twoFactorStatus">Disabled</span>
+                                </div>
+                                <button class="btn btn-secondary" onclick="setupTwoFactor()">
+                                    <i class="fas fa-shield-alt"></i> Setup Two-Factor Auth
+                                </button>
+                            </div>
+                            
+                            <div class="security-section">
+                                <h3>Login Sessions</h3>
+                                <div class="sessions-list" id="sessionsList">
+                                    <!-- Active sessions will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>BookStore</h3>
+                    <p>Your trusted source for quality books and exceptional reading experiences.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="shipping.html">Shipping Info</a></li>
+                        <li><a href="returns.html">Returns</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                        <p><i class="fas fa-envelope"></i> info@bookstore.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> 123 Book Street, Reading City, RC 12345</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 BookStore. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/cart.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/profile.js"></script>
+</body>
+</html> 
