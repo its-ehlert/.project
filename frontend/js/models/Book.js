@@ -31,11 +31,11 @@ class Book {
     }
 
     get formattedPrice() {
-        return `$${this.price.toFixed(2)}`;
+        return `KSh ${this.price.toFixed(0)}`;
     }
 
     get formattedOriginalPrice() {
-        return `$${this.originalPrice.toFixed(2)}`;
+        return `KSh ${this.originalPrice.toFixed(0)}`;
     }
 
     applyDiscount(percentage) {

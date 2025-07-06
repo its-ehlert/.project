@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - BookStore</title>
+    <title>Shopping Cart - Magenta</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
                 <div class="nav-logo">
                     <a href="../index.html">
                         <i class="fas fa-book-open"></i>
-                        <span>BookStore</span>
+                        <span>Magenta</span>
                     </a>
                 </div>
                 
@@ -43,9 +43,6 @@
                         </li>
                         <li class="nav-item">
                             <a href="bestsellers.html" class="nav-link">Bestsellers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="new-releases.html" class="nav-link">New Releases</a>
                         </li>
                         <li class="nav-item">
                             <a href="deals.html" class="nav-link">Deals</a>
@@ -92,20 +89,33 @@
         </nav>
     </header>
 
-    <!-- Cart Section -->
-    <section class="cart-section">
+    <!-- Cart Hero -->
+    <section class="cart-hero">
         <div class="container">
-            <div class="page-header">
-                <h1>Shopping Cart</h1>
+            <div class="hero-content">
+                <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+                <p>Review your items and proceed to checkout</p>
                 <nav class="breadcrumb">
                     <a href="../index.html">Home</a>
                     <i class="fas fa-chevron-right"></i>
                     <span>Cart</span>
                 </nav>
             </div>
+        </div>
+    </section>
 
+    <!-- Cart Section -->
+    <section class="cart-section">
+        <div class="container">
             <div class="cart-layout">
                 <div class="cart-main">
+                    <div class="cart-header">
+                        <h2>Cart Items (<span id="cartItemCount">0</span>)</h2>
+                        <button class="btn btn-secondary btn-sm" id="clearCartBtn">
+                            <i class="fas fa-trash"></i> Clear Cart
+                        </button>
+                    </div>
+                    
                     <div class="cart-container" id="cartContainer">
                         <!-- Cart items will be loaded here -->
                     </div>
@@ -113,24 +123,32 @@
 
                 <div class="cart-sidebar">
                     <div class="coupon-section">
-                        <h3>Have a Coupon?</h3>
+                        <div class="section-header">
+                            <h3><i class="fas fa-tag"></i> Have a Coupon?</h3>
+                            <p>Enter your discount code below</p>
+                        </div>
                         <form class="coupon-form" id="couponForm">
                             <div class="input-group">
-                                <input type="text" name="couponCode" placeholder="Enter coupon code">
-                                <button type="submit" class="btn btn-secondary">Apply</button>
+                                <input type="text" name="couponCode" placeholder="Enter coupon code" id="couponInput">
+                                <button type="submit" class="btn btn-secondary">
+                                    <i class="fas fa-check"></i> Apply
+                                </button>
                             </div>
+                            <div id="couponMessage" class="coupon-message"></div>
                         </form>
                     </div>
 
                     <div class="cart-summary-card">
-                        <h3>Order Summary</h3>
+                        <div class="summary-header">
+                            <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+                        </div>
                         <div class="summary-details">
                             <div class="summary-row">
                                 <span>Subtotal:</span>
                                 <span id="summarySubtotal">$0.00</span>
                             </div>
                             <div class="summary-row">
-                                <span>Tax:</span>
+                                <span>Tax (8%):</span>
                                 <span id="summaryTax">$0.00</span>
                             </div>
                             <div class="summary-row">
@@ -152,7 +170,7 @@
                                 <i class="fas fa-arrow-left"></i>
                                 Continue Shopping
                             </a>
-                            <button class="btn btn-primary btn-full" onclick="cart.proceedToCheckout()">
+                            <button class="btn btn-primary btn-full" id="checkoutBtn">
                                 <i class="fas fa-credit-card"></i>
                                 Proceed to Checkout
                             </button>
@@ -171,6 +189,18 @@
                             <i class="fab fa-cc-paypal"></i>
                         </div>
                     </div>
+
+                    <div class="shipping-info">
+                        <div class="info-header">
+                            <i class="fas fa-shipping-fast"></i>
+                            <h4>Free Shipping</h4>
+                        </div>
+                        <p>Free shipping on orders over KSh 6,750</p>
+                        <div class="progress-bar">
+                            <div class="progress" id="shippingProgress"></div>
+                        </div>
+                        <span class="progress-text" id="shippingText">Add $50.00 more for free shipping</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -179,7 +209,10 @@
     <!-- Recommended Books -->
     <section class="recommended-books">
         <div class="container">
-            <h2>You Might Also Like</h2>
+            <div class="section-header">
+                <h2>You Might Also Like</h2>
+                <p>Discover more great books to add to your collection</p>
+            </div>
             <div class="books-grid" id="recommendedBooks">
                 <!-- Recommended books will be loaded here -->
             </div>
@@ -191,7 +224,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>BookStore</h3>
+                    <h3>Magenta</h3>
                     <p>Your trusted source for quality books and exceptional reading experiences.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook"></i></a>
@@ -224,15 +257,15 @@
                 <div class="footer-section">
                     <h4>Contact Info</h4>
                     <div class="contact-info">
-                        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                        <p><i class="fas fa-envelope"></i> info@bookstore.com</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 123 Book Street, Reading City, RC 12345</p>
+                        <p><i class="fas fa-phone"></i> +254123456789</p>
+                        <p><i class="fas fa-envelope"></i> info@Magenta.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2024 BookStore. All rights reserved.</p>
+                <p>&copy; 2025 Magenta. All rights reserved.</p>
             </div>
         </div>
     </footer>

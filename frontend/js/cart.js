@@ -2,6 +2,7 @@
 class ShoppingCart {
     constructor() {
         this.cart = this.loadCart();
+        this.coupon = null;
         this.init();
     }
 
@@ -9,6 +10,7 @@ class ShoppingCart {
     init() {
         this.updateCartDisplay();
         this.bindEvents();
+        this.updateShippingProgress();
     }
 
     // Load cart from localStorage
@@ -21,6 +23,7 @@ class ShoppingCart {
     saveCart() {
         localStorage.setItem('cart', JSON.stringify(this.cart));
         this.updateCartDisplay();
+        this.updateShippingProgress();
     }
 
     // Add item to cart
@@ -70,8 +73,11 @@ class ShoppingCart {
     // Clear cart
     clearCart() {
         this.cart = [];
+        this.coupon = null;
         this.saveCart();
         this.syncWithServer();
+        this.updateCartDisplay();
+        this.updateShippingProgress();
         return true;
     }
 
@@ -128,15 +134,26 @@ class ShoppingCart {
         });
 
         const tax = subtotal * 0.08; // 8% tax rate
-        const shipping = subtotal >= 50 ? 0 : 5.99; // Free shipping over $50
-        const total = subtotal + tax + shipping;
+        const shipping = subtotal >= 6750 ? 0 : 809; // Free shipping over KSh 6,750 (equivalent to $50)
+        let total = subtotal + tax + shipping;
+
+        // Apply coupon discount if available
+        if (this.coupon) {
+            const discount = this.coupon.type === 'percentage' 
+                ? (subtotal * this.coupon.value / 100)
+                : this.coupon.value;
+            total -= discount;
+        }
 
         return {
             subtotal: subtotal,
             tax: tax,
             shipping: shipping,
             total: total,
-            totalItems: totalItems
+            totalItems: totalItems,
+            discount: this.coupon ? (this.coupon.type === 'percentage' 
+                ? (subtotal * this.coupon.value / 100)
+                : this.coupon.value) : 0
         };
     }
 
@@ -145,6 +162,8 @@ class ShoppingCart {
         this.updateCartCount();
         this.updateCartTotal();
         this.updateCartBadge();
+        this.updateCartItemCount();
+        this.updateSummary();
     }
 
     // Update cart count in header
@@ -178,6 +197,65 @@ class ShoppingCart {
         }
     }
 
+    // Update cart item count display
+    updateCartItemCount() {
+        const cartItemCount = document.getElementById('cartItemCount');
+        if (cartItemCount) {
+            const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartItemCount.textContent = totalItems;
+        }
+    }
+
+    // Update shipping progress
+    updateShippingProgress() {
+        this.getCartItems().then(cartItems => {
+            const totals = this.calculateTotals(cartItems);
+            const progressBar = document.getElementById('shippingProgress');
+            const progressText = document.getElementById('shippingText');
+            
+            if (progressBar && progressText) {
+                const progress = Math.min((totals.subtotal / 50) * 100, 100);
+                progressBar.style.width = `${progress}%`;
+                
+                if (totals.subtotal >= 50) {
+                    progressText.textContent = 'Free shipping unlocked!';
+                    progressText.style.color = '#2bff05';
+                } else {
+                    const remaining = 50 - totals.subtotal;
+                    progressText.textContent = `Add $${remaining.toFixed(2)} more for free shipping`;
+                    progressText.style.color = '#b8c5d6';
+                }
+            }
+        });
+    }
+
+    // Update order summary
+    async updateSummary() {
+        const cartItems = await this.getCartItems();
+        const totals = this.calculateTotals(cartItems);
+        
+        const summarySubtotal = document.getElementById('summarySubtotal');
+        const summaryTax = document.getElementById('summaryTax');
+        const summaryShipping = document.getElementById('summaryShipping');
+        const summaryTotal = document.getElementById('summaryTotal');
+        const summaryDiscount = document.getElementById('summaryDiscount');
+        const discountAmount = document.getElementById('discountAmount');
+        
+        if (summarySubtotal) summarySubtotal.textContent = api.formatPrice(totals.subtotal);
+        if (summaryTax) summaryTax.textContent = api.formatPrice(totals.tax);
+        if (summaryShipping) summaryShipping.textContent = totals.shipping === 0 ? 'FREE' : api.formatPrice(totals.shipping);
+        if (summaryTotal) summaryTotal.textContent = api.formatPrice(totals.total);
+        
+        if (summaryDiscount && discountAmount) {
+            if (totals.discount > 0) {
+                summaryDiscount.style.display = 'flex';
+                discountAmount.textContent = `-${api.formatPrice(totals.discount)}`;
+            } else {
+                summaryDiscount.style.display = 'none';
+            }
+        }
+    }
+
     // Render cart items
     async renderCartItems(container) {
         if (!container) return;
@@ -187,10 +265,21 @@ class ShoppingCart {
         if (cartItems.length === 0) {
             container.innerHTML = `
                 <div class="empty-cart">
-                    <i class="fas fa-shopping-cart"></i>
+                    <div class="empty-cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
                     <h3>Your cart is empty</h3>
-                    <p>Add some books to get started!</p>
-                    <a href="/" class="btn btn-primary">Continue Shopping</a>
+                    <p>Looks like you haven't added any books to your cart yet.</p>
+                    <div class="empty-cart-actions">
+                        <a href="../index.html" class="btn btn-primary">
+                            <i class="fas fa-book"></i>
+                            Start Shopping
+                        </a>
+                        <a href="bestsellers.html" class="btn btn-secondary">
+                            <i class="fas fa-star"></i>
+                            View Bestsellers
+                        </a>
+                    </div>
                 </div>
             `;
             return;
@@ -198,36 +287,13 @@ class ShoppingCart {
 
         const totals = this.calculateTotals(cartItems);
         
-        const itemsHTML = cartItems.map(item => this.createCartItemHTML(item)).join('');
-        
-        container.innerHTML = `
+        let cartHTML = `
             <div class="cart-items">
-                ${itemsHTML}
-            </div>
-            <div class="cart-summary">
-                <div class="summary-row">
-                    <span>Subtotal (${totals.totalItems} items):</span>
-                    <span>${api.formatPrice(totals.subtotal)}</span>
-                </div>
-                <div class="summary-row">
-                    <span>Tax:</span>
-                    <span>${api.formatPrice(totals.tax)}</span>
-                </div>
-                <div class="summary-row">
-                    <span>Shipping:</span>
-                    <span>${totals.shipping === 0 ? 'FREE' : api.formatPrice(totals.shipping)}</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total:</span>
-                    <span>${api.formatPrice(totals.total)}</span>
-                </div>
-                <div class="cart-actions">
-                    <button class="btn btn-secondary" onclick="cart.clearCart()">Clear Cart</button>
-                    <button class="btn btn-primary" onclick="cart.proceedToCheckout()">Proceed to Checkout</button>
-                </div>
+                ${cartItems.map(item => this.createCartItemHTML(item)).join('')}
             </div>
         `;
-
+        
+        container.innerHTML = cartHTML;
         this.bindCartItemEvents(container);
     }
 
@@ -257,7 +323,7 @@ class ShoppingCart {
         return `
             <div class="cart-item" data-book-id="${item.bookId}">
                 <div class="cart-item-image">
-                    <img src="${item.book.cover_image_url || 'images/book-placeholder.jpg'}" alt="${item.book.title}">
+                    <img src="${item.book.cover_image_url || '../images/book-placeholder.jpg'}" alt="${item.book.title}">
                 </div>
                 <div class="cart-item-details">
                     <h4 class="cart-item-title">${item.book.title}</h4>
@@ -281,7 +347,7 @@ class ShoppingCart {
                     ${api.formatPrice(price * item.quantity)}
                 </div>
                 <div class="cart-item-actions">
-                    <button class="remove-item" onclick="cart.removeItem(${item.bookId})">
+                    <button class="remove-item" onclick="cart.removeItem(${item.bookId})" title="Remove item">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -308,7 +374,7 @@ class ShoppingCart {
         if (cartIcon) {
             cartIcon.addEventListener('click', function(e) {
                 e.preventDefault();
-                window.location.href = '/pages/cart.html';
+                window.location.href = 'cart.html';
             });
         }
 
@@ -321,6 +387,25 @@ class ShoppingCart {
                 showNotification('Book added to cart!', 'success');
             }
         });
+
+        // Clear cart button
+        const clearCartBtn = document.getElementById('clearCartBtn');
+        if (clearCartBtn) {
+            clearCartBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear your cart?')) {
+                    cart.clearCart();
+                    showNotification('Cart cleared successfully', 'info');
+                }
+            });
+        }
+
+        // Checkout button
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function() {
+                cart.proceedToCheckout();
+            });
+        }
     }
 
     // Sync cart with server
@@ -349,12 +434,12 @@ class ShoppingCart {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (!user.token) {
             showNotification('Please log in to continue with checkout', 'error');
-            window.location.href = '/pages/login.html?redirect=checkout';
+            window.location.href = 'login.html?redirect=checkout';
             return;
         }
 
         // Proceed to checkout
-        window.location.href = '/pages/checkout.html';
+        window.location.href = 'checkout.html';
     }
 
     // Apply coupon
@@ -363,24 +448,39 @@ class ShoppingCart {
             const response = await api.validateCoupon(code);
             if (response.valid) {
                 this.coupon = response.coupon;
-                showNotification(`Coupon applied! ${response.coupon.description}`, 'success');
+                this.showCouponMessage(`Coupon applied! ${response.coupon.description}`, 'success');
                 this.updateCartDisplay();
                 return true;
             } else {
-                showNotification(response.message || 'Invalid coupon code', 'error');
+                this.showCouponMessage(response.message || 'Invalid coupon code', 'error');
                 return false;
             }
         } catch (error) {
             console.error('Error applying coupon:', error);
-            showNotification('Error applying coupon. Please try again.', 'error');
+            this.showCouponMessage('Error applying coupon. Please try again.', 'error');
             return false;
+        }
+    }
+
+    // Show coupon message
+    showCouponMessage(message, type) {
+        const messageDiv = document.getElementById('couponMessage');
+        if (messageDiv) {
+            messageDiv.textContent = message;
+            messageDiv.className = `coupon-message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
         }
     }
 
     // Remove coupon
     removeCoupon() {
         this.coupon = null;
-        showNotification('Coupon removed', 'info');
+        this.showCouponMessage('Coupon removed', 'info');
         this.updateCartDisplay();
     }
 
@@ -426,132 +526,4 @@ if (window.location.pathname.includes('cart.html')) {
             });
         }
     });
-}
-
-// Mini cart functionality
-class MiniCart {
-    constructor() {
-        this.isOpen = false;
-        this.init();
-    }
-
-    init() {
-        this.createMiniCart();
-        this.bindEvents();
-    }
-
-    createMiniCart() {
-        const miniCart = document.createElement('div');
-        miniCart.className = 'mini-cart';
-        miniCart.innerHTML = `
-            <div class="mini-cart-header">
-                <h3>Shopping Cart</h3>
-                <button class="close-mini-cart">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="mini-cart-content"></div>
-            <div class="mini-cart-footer">
-                <div class="mini-cart-total">
-                    <span>Total:</span>
-                    <span id="miniCartTotal">$0.00</span>
-                </div>
-                <div class="mini-cart-actions">
-                    <a href="/pages/cart.html" class="btn btn-secondary">View Cart</a>
-                    <a href="/pages/checkout.html" class="btn btn-primary">Checkout</a>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(miniCart);
-        this.element = miniCart;
-    }
-
-    bindEvents() {
-        const cartIcon = document.querySelector('.action-btn[href*="cart"]');
-        if (cartIcon) {
-            cartIcon.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.toggle();
-            });
-        }
-
-        const closeBtn = this.element.querySelector('.close-mini-cart');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                this.close();
-            });
-        }
-
-        // Close when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!this.element.contains(e.target) && !e.target.closest('.action-btn[href*="cart"]')) {
-                this.close();
-            }
-        });
-    }
-
-    async toggle() {
-        if (this.isOpen) {
-            this.close();
-        } else {
-            this.open();
-        }
-    }
-
-    async open() {
-        await this.updateContent();
-        this.element.classList.add('open');
-        this.isOpen = true;
-    }
-
-    close() {
-        this.element.classList.remove('open');
-        this.isOpen = false;
-    }
-
-    async updateContent() {
-        const content = this.element.querySelector('.mini-cart-content');
-        const cartItems = await cart.getCartItems();
-        
-        if (cartItems.length === 0) {
-            content.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
-            return;
-        }
-
-        const itemsHTML = cartItems.slice(0, 3).map(item => this.createMiniCartItemHTML(item)).join('');
-        const moreItems = cartItems.length > 3 ? `<p class="more-items">+${cartItems.length - 3} more items</p>` : '';
-        
-        content.innerHTML = itemsHTML + moreItems;
-        
-        // Update total
-        const totals = cart.calculateTotals(cartItems);
-        const totalElement = this.element.querySelector('#miniCartTotal');
-        if (totalElement) {
-            totalElement.textContent = api.formatPrice(totals.total);
-        }
-    }
-
-    createMiniCartItemHTML(item) {
-        if (!item.book) return '';
-
-        return `
-            <div class="mini-cart-item">
-                <img src="${item.book.cover_image_url || 'images/book-placeholder.jpg'}" alt="${item.book.title}">
-                <div class="mini-cart-item-details">
-                    <h4>${api.truncateText(item.book.title, 30)}</h4>
-                    <p>Qty: ${item.quantity}</p>
-                    <span class="price">${api.formatPrice(item.book.price * item.quantity)}</span>
-                </div>
-                <button class="remove-mini-item" onclick="cart.removeItem(${item.bookId})">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-    }
-}
-
-// Initialize mini cart if not on cart page
-if (!window.location.pathname.includes('cart.html')) {
-    const miniCart = new MiniCart();
 } 

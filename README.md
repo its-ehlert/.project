@@ -1,130 +1,227 @@
-# Online Book Store Management System
+# Magenta Bookstore - Admin Panel
 
-A comprehensive web-based online book store built with Java, HTML, CSS, and PHP.
+A comprehensive online bookstore with a modern dark-themed admin panel for managing users, books, orders, and more.
 
 ## Features
 
-### For Administrators
-- Add, edit, and delete books
-- Manage customer accounts
-- Track orders and inventory
-- Generate sales reports and analytics
+### Frontend
+- **Modern Dark Theme**: Beautiful dark UI with gradients and modern design
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- **User Authentication**: Secure login and registration system
+- **Shopping Cart**: Full cart functionality with real-time updates
+- **Book Management**: Browse, search, and purchase books
+- **Order Management**: Complete order tracking and history
+
+### Admin Panel
+- **Secure Admin Login**: Separate admin authentication system
+- **Dashboard**: Real-time statistics and overview
+- **User Management**: Add, edit, delete, and manage user accounts
+- **Book Management**: Upload, edit, and manage book inventory
+- **Order Management**: Track and update order statuses
+- **Category Management**: Organize books by categories
+- **Reports & Analytics**: Sales reports and user analytics
+- **File Upload**: Support for book cover images and documents
+
+## Admin Panel Features
+
+### Dashboard
+- Total users, books, orders, and revenue statistics
+- Recent orders and user registrations
+- Quick access to all admin functions
+
+### User Management
+- View all registered users
+- Add new users with custom roles
+- Edit user information and status
+- Delete users with confirmation
+- Search and filter users
+
+### Book Management
+- Upload new books with cover images
+- Edit book details, prices, and stock
 - Manage book categories and authors
-- Process refunds and returns
-- Manage discounts and promotions
+- Bulk operations for inventory
+- Image upload and management
 
-### For Customers
-- Browse and search books
-- Add books to shopping cart
-- Place orders online
-- Track order status
-- View purchase history
-- Write book reviews and ratings
-- Update profile information
-- Wishlist management
+### Order Management
+- View all orders with customer details
+- Update order status and payment status
+- Order history and tracking
+- Order analytics and reports
 
-### System Features
-- User authentication and authorization
-- Real-time inventory tracking
-- Email notifications for orders
-- Advanced search with filters
-- Responsive design for all devices
-- Secure payment processing
-- Order tracking system
-- Review and rating system
-- Discount and coupon system
-- Inventory alerts
-- Sales analytics dashboard
+### Category Management
+- Create and manage book categories
+- Hierarchical category structure
+- Category-based book organization
 
-## Technology Stack
+## Installation
 
-- **Backend**: Java (Spring Boot)
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Server-side**: PHP
-- **Database**: MySQL
-- **Build Tool**: Maven
+### Prerequisites
+- Node.js (v14 or higher)
+- MySQL (v8.0 or higher)
+- npm or yarn
 
-## Project Structure
-
-```
-online-bookstore/
-├── backend/                 # Java Spring Boot application
-│   ├── src/
-│   ├── pom.xml
-│   └── application.properties
-├── frontend/               # HTML, CSS, JavaScript files
-│   ├── css/
-│   ├── js/
-│   ├── images/
-│   └── pages/
-├── php/                   # PHP scripts for dynamic content
-├── database/              # SQL scripts and database schema
-├── docs/                  # Documentation
-└── README.md
-```
-
-## Installation and Setup
-
-1. **Prerequisites**
-   - Java 11 or higher
-   - Maven 3.6+
-   - MySQL 8.0+
-   - PHP 7.4+
-   - Web server (Apache/Nginx)
-
-2. **Database Setup**
-   ```sql
-   CREATE DATABASE online_bookstore;
-   USE online_bookstore;
-   ```
-
-3. **Backend Setup**
+### Backend Setup
+1. Navigate to the backend directory:
    ```bash
    cd backend
-   mvn clean install
-   mvn spring-boot:run
    ```
 
-4. **Frontend Setup**
-   - Copy frontend files to web server directory
-   - Configure PHP settings
-   - Update database connection in PHP files
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the backend directory:
+   ```env
+   DB_HOST=localhost
+   DB_USER=your_mysql_username
+   DB_PASSWORD=your_mysql_password
+   DB_NAME=online_bookstore
+   JWT_SECRET=your_jwt_secret_key
+   PORT=3000
+   FRONTEND_URL=http://localhost:5000
+   ```
+
+4. Set up the database:
+   ```bash
+   mysql -u your_username -p < ../database/schema.sql
+   ```
+
+5. Create an admin user:
+   ```sql
+   INSERT INTO users (username, email, password_hash, role) 
+   VALUES ('admin', 'admin@magenta.com', '$2a$10$hashed_password', 'admin');
+   ```
+
+6. Start the backend server:
+   ```bash
+   npm run dev
+   ```
+
+### Frontend Setup
+1. Open the frontend directory in your browser or use a local server
+2. The admin panel is accessible at `pages/admin-login.html`
+3. Use the admin credentials to log in
 
 ## API Endpoints
 
-### Books
+### Admin Routes
+- `POST /api/admin/login` - Admin login
+- `POST /api/admin/verify` - Verify admin token
+- `GET /api/admin/dashboard` - Get dashboard statistics
+
+### User Management
+- `GET /api/users` - Get all users
+- `POST /api/users` - Create new user
+- `PUT /api/users/:id` - Update user
+- `DELETE /api/users/:id` - Delete user
+- `GET /api/users/:id` - Get user details
+
+### Book Management
 - `GET /api/books` - Get all books
-- `POST /api/books` - Add new book
-- `PUT /api/books/{id}` - Update book
-- `DELETE /api/books/{id}` - Delete book
-- `GET /api/books/search` - Search books
-- `GET /api/books/category/{category}` - Get books by category
+- `POST /api/books` - Add new book (with file upload)
+- `PUT /api/books/:id` - Update book
+- `DELETE /api/books/:id` - Delete book
+- `GET /api/books/:id` - Get book details
 
-### Customers
-- `GET /api/customers` - Get all customers
-- `POST /api/customers` - Register new customer
-- `PUT /api/customers/{id}` - Update customer
-- `POST /api/customers/login` - Customer login
-
-### Orders
+### Order Management
 - `GET /api/orders` - Get all orders
-- `POST /api/orders` - Create new order
-- `PUT /api/orders/{id}/status` - Update order status
-- `GET /api/orders/customer/{customerId}` - Get customer orders
+- `GET /api/orders/:id` - Get order details
+- `PATCH /api/orders/:id/status` - Update order status
+- `GET /api/orders/stats/summary` - Get order statistics
 
-### Cart
-- `GET /api/cart/{customerId}` - Get customer cart
-- `POST /api/cart/add` - Add item to cart
-- `DELETE /api/cart/remove/{itemId}` - Remove item from cart
-- `PUT /api/cart/update` - Update cart item quantity
+### Category Management
+- `GET /api/categories` - Get all categories
+- `POST /api/categories` - Create new category
+- `PUT /api/categories/:id` - Update category
+- `DELETE /api/categories/:id` - Delete category
+- `GET /api/categories/tree/structure` - Get category tree
+
+## Security Features
+
+- JWT-based authentication
+- Password hashing with bcrypt
+- Role-based access control
+- Input validation and sanitization
+- Rate limiting
+- CORS protection
+- Helmet security headers
+
+## File Structure
+
+```
+project/
+├── frontend/
+│   ├── css/
+│   │   ├── style.css          # Main styles including admin panel
+│   │   └── responsive.css     # Responsive design
+│   ├── js/
+│   │   ├── admin.js           # Admin panel functionality
+│   │   ├── auth.js            # Authentication
+│   │   ├── api.js             # API utilities
+│   │   └── main.js            # Main functionality
+│   ├── pages/
+│   │   ├── admin-login.html   # Admin login page
+│   │   ├── admin-dashboard.html # Main admin panel
+│   │   └── ...                # Other pages
+│   └── images/
+├── backend/
+│   ├── config/
+│   │   └── database.js        # Database configuration
+│   ├── middleware/
+│   │   └── auth.js            # Authentication middleware
+│   ├── routes/
+│   │   ├── admin.js           # Admin routes
+│   │   ├── users.js           # User management
+│   │   ├── books.js           # Book management
+│   │   ├── orders.js          # Order management
+│   │   ├── categories.js      # Category management
+│   │   └── auth.js            # Authentication routes
+│   ├── uploads/               # File uploads directory
+│   ├── package.json
+│   └── server.js              # Main server file
+└── database/
+    └── schema.sql             # Database schema
+```
+
+## Usage
+
+### Admin Login
+1. Navigate to `pages/admin-login.html`
+2. Enter admin credentials
+3. Access the full admin dashboard
+
+### Managing Users
+1. Go to the Users tab in the admin panel
+2. View all registered users
+3. Add new users with the "Add New User" button
+4. Edit or delete existing users
+
+### Managing Books
+1. Go to the Books tab
+2. Upload new books with cover images
+3. Edit book details, prices, and stock
+4. Organize books by categories
+
+### Managing Orders
+1. Go to the Orders tab
+2. View all customer orders
+3. Update order status and payment status
+4. Track order history
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Submit a pull request
+4. Test thoroughly
+5. Submit a pull request
 
 ## License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License.
+
+## Support
+
+For support and questions, please contact the development team. 

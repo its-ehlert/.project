@@ -1,8 +1,8 @@
 // API Service for Online Book Store
 class BookStoreAPI {
     constructor() {
-        this.baseURL = 'http://localhost:8080/api'; // Java Spring Boot backend
-        this.phpURL = 'http://localhost/bookstore/php'; // PHP scripts
+        this.baseURL = 'http://localhost:3000/api'; // Node.js backend
+        this.phpURL = 'http://localhost/bookstore/php'; // PHP scripts (legacy)
     }
 
     // Generic request method
@@ -97,29 +97,103 @@ class BookStoreAPI {
 
     // Authentication API
     async login(credentials) {
-        return this.request('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify(credentials)
-        });
+        try {
+            const response = await fetch(`${this.baseURL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(credentials)
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Login failed');
+            }
+
+            return {
+                success: true,
+                user: {
+                    id: data.user.id,
+                    email: data.user.email,
+                    firstName: data.user.firstName,
+                    lastName: data.user.lastName,
+                    role: data.user.role,
+                    token: data.token
+                }
+            };
+        } catch (error) {
+            console.error('Login error:', error);
+            return {
+                success: false,
+                message: error.message || 'Login failed'
+            };
+        }
     }
 
     async register(userData) {
-        return this.request('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(userData)
-        });
+        try {
+            const response = await fetch(`${this.baseURL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Registration failed');
+            }
+
+            return {
+                success: true,
+                user: {
+                    id: data.user.id,
+                    email: data.user.email,
+                    firstName: data.user.firstName,
+                    lastName: data.user.lastName,
+                    role: data.user.role,
+                    token: data.token
+                }
+            };
+        } catch (error) {
+            console.error('Registration error:', error);
+            return {
+                success: false,
+                message: error.message || 'Registration failed'
+            };
+        }
     }
 
     async logout() {
-        return this.request('/auth/logout', {
-            method: 'POST'
-        });
+        // For now, just return success since our backend doesn't have a logout endpoint
+        return { success: true };
     }
 
     async refreshToken() {
-        return this.request('/auth/refresh', {
-            method: 'POST'
-        });
+        try {
+            const response = await fetch(`${this.baseURL}/auth/verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.getAuthToken()}`
+                }
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Token verification failed');
+            }
+
+            return { success: true, user: data.user };
+        } catch (error) {
+            console.error('Token refresh error:', error);
+            return { success: false, message: error.message };
+        }
     }
 
     // User Profile API
@@ -343,7 +417,7 @@ class BookStoreAPI {
     formatPrice(price) {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'KES'
         }).format(price);
     }
 
