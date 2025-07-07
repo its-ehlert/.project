@@ -529,14 +529,17 @@ class AdminPanel {
                 body: formData
             });
 
-            if (!response.ok) throw new Error('Failed to add user');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to add user');
+            }
 
             this.showSuccess('User added successfully');
             this.closeModal('addUserModal');
             this.loadUsers();
         } catch (error) {
             console.error('Error adding user:', error);
-            this.showError('Failed to add user');
+            this.showError(error.message || 'Failed to add user');
         } finally {
             this.hideLoading();
         }
@@ -555,14 +558,17 @@ class AdminPanel {
                 body: formData
             });
 
-            if (!response.ok) throw new Error('Failed to add book');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to add book');
+            }
 
             this.showSuccess('Book added successfully');
             this.closeModal('addBookModal');
             this.loadBooks();
         } catch (error) {
             console.error('Error adding book:', error);
-            this.showError('Failed to add book');
+            this.showError(error.message || 'Failed to add book');
         } finally {
             this.hideLoading();
         }
