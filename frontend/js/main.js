@@ -182,10 +182,10 @@ function createBookCard(book) {
         `<div class="book-badge">-${book.discount_percentage}%</div>` : '';
     
     const originalPrice = book.original_price && book.original_price > book.price ? 
-        `<span class="original-price">$${book.original_price.toFixed(2)}</span>` : '';
+                        `<span class="original-price">KSh ${book.original_price.toFixed(0)}</span>` : '';
     
     const discount = book.original_price && book.original_price > book.price ? 
-        `<span class="discount">Save $${(book.original_price - book.price).toFixed(2)}</span>` : '';
+        `<span class="discount">Save KSh ${(book.original_price - book.price).toFixed(0)}</span>` : '';
 
     return `
         <div class="book-card" data-book-id="${book.id}">
@@ -203,7 +203,7 @@ function createBookCard(book) {
                     <span class="rating-text">(${book.review_count || 0} reviews)</span>
                 </div>
                 <div class="book-price">
-                    <span class="current-price">$${book.price.toFixed(2)}</span>
+                    <span class="current-price">KSh ${book.price.toFixed(0)}</span>
                     ${originalPrice}
                     ${discount}
                 </div>
@@ -409,8 +409,8 @@ function getFeaturedBooks() {
             id: 1,
             title: "The Great Gatsby",
             author: "F. Scott Fitzgerald",
-            price: 12.99,
-            original_price: 15.99,
+            price: 1754,
+            original_price: 2159,
             discount_percentage: 19,
             rating: 4.5,
             review_count: 1250,
@@ -420,8 +420,8 @@ function getFeaturedBooks() {
             id: 2,
             title: "To Kill a Mockingbird",
             author: "Harper Lee",
-            price: 14.99,
-            original_price: 14.99,
+            price: 2024,
+            original_price: 2024,
             discount_percentage: 0,
             rating: 4.8,
             review_count: 2100,
@@ -431,8 +431,8 @@ function getFeaturedBooks() {
             id: 3,
             title: "1984",
             author: "George Orwell",
-            price: 11.99,
-            original_price: 13.99,
+            price: 1619,
+            original_price: 1889,
             discount_percentage: 14,
             rating: 4.6,
             review_count: 1800,
@@ -442,8 +442,8 @@ function getFeaturedBooks() {
             id: 4,
             title: "The Catcher in the Rye",
             author: "J.D. Salinger",
-            price: 13.99,
-            original_price: 13.99,
+            price: 1889,
+            original_price: 1889,
             discount_percentage: 0,
             rating: 4.3,
             review_count: 950,
@@ -458,8 +458,8 @@ function getBestsellers() {
             id: 5,
             title: "The Alchemist",
             author: "Paulo Coelho",
-            price: 15.99,
-            original_price: 18.99,
+            price: 2159,
+            original_price: 2564,
             discount_percentage: 16,
             rating: 4.7,
             review_count: 3200,
@@ -469,8 +469,8 @@ function getBestsellers() {
             id: 6,
             title: "Pride and Prejudice",
             author: "Jane Austen",
-            price: 9.99,
-            original_price: 12.99,
+            price: 1349,
+            original_price: 1754,
             discount_percentage: 23,
             rating: 4.4,
             review_count: 1600,
@@ -480,8 +480,8 @@ function getBestsellers() {
             id: 7,
             title: "The Hobbit",
             author: "J.R.R. Tolkien",
-            price: 16.99,
-            original_price: 16.99,
+            price: 2294,
+            original_price: 2294,
             discount_percentage: 0,
             rating: 4.9,
             review_count: 2800,
@@ -491,8 +491,8 @@ function getBestsellers() {
             id: 8,
             title: "The Lord of the Rings",
             author: "J.R.R. Tolkien",
-            price: 24.99,
-            original_price: 29.99,
+            price: 3374,
+            original_price: 4049,
             discount_percentage: 17,
             rating: 4.8,
             review_count: 3500,

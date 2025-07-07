@@ -37,7 +37,7 @@ class CreditCardPayment extends PaymentMethod {
         }
 
         // Simulate payment processing
-        console.log(`Processing ${this.name} payment for $${amount}`);
+        console.log(`Processing ${this.name} payment for KSh ${amount}`);
         
         return {
             success: true,
@@ -86,7 +86,7 @@ class PayPalPayment extends PaymentMethod {
             throw new Error('Invalid PayPal email');
         }
 
-        console.log(`Processing ${this.name} payment for $${amount}`);
+        console.log(`Processing ${this.name} payment for KSh ${amount}`);
         
         return {
             success: true,
@@ -133,7 +133,7 @@ class BankTransferPayment extends PaymentMethod {
             throw new Error('Invalid bank details');
         }
 
-        console.log(`Processing ${this.name} payment for $${amount}`);
+        console.log(`Processing ${this.name} payment for KSh ${amount}`);
         
         return {
             success: true,
@@ -159,7 +159,7 @@ class BankTransferPayment extends PaymentMethod {
     }
 
     getProcessingFee() {
-        return 5.00; // $5.00 processing fee
+        return 675; // KSh 675 processing fee
     }
 
     getEstimatedProcessingTime() {
@@ -182,7 +182,7 @@ class CryptoPayment extends PaymentMethod {
             throw new Error('Invalid cryptocurrency details');
         }
 
-        console.log(`Processing ${this.name} payment for $${amount} in ${cryptoType}`);
+        console.log(`Processing ${this.name} payment for KSh ${amount} in ${cryptoType}`);
         
         return {
             success: true,

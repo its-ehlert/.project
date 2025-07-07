@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deals & Offers - BookStore</title>
+    <title>Deals & Offers - Magenta</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
                 <div class="nav-logo">
                     <a href="../index.html">
                         <i class="fas fa-book-open"></i>
-                        <span>BookStore</span>
+                        <span>Magenta</span>
                     </a>
                 </div>
                 
@@ -43,9 +43,6 @@
                         </li>
                         <li class="nav-item">
                             <a href="bestsellers.html" class="nav-link">Bestsellers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="new-releases.html" class="nav-link">New Releases</a>
                         </li>
                         <li class="nav-item">
                             <a href="deals.html" class="nav-link active">Deals</a>
@@ -215,14 +212,14 @@
             <div class="alert-content">
                 <h2>Never Miss a Deal</h2>
                 <p>Subscribe to our deal alerts and be the first to know about new offers</p>
-                <form class="alert-form" id="dealAlertForm">
+                <form class="deal-alerts-form" id="dealAlertForm">
                     <div class="form-group">
-                        <label for="alertEmail">Email Address</label>
-                        <input type="email" id="alertEmail" required>
+                        <label for="alertEmail"><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" id="alertEmail" placeholder="Enter your email address" required>
                     </div>
                     <div class="form-group">
-                        <label for="alertCategories">Categories of Interest</label>
-                        <select id="alertCategories" multiple>
+                        <label for="alertCategories"><i class="fas fa-list"></i> Categories of Interest</label>
+                        <select id="alertCategories" multiple required>
                             <option value="fiction">Fiction</option>
                             <option value="non-fiction">Non-Fiction</option>
                             <option value="mystery">Mystery & Thriller</option>
@@ -232,17 +229,54 @@
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Subscribe to Alerts</button>
+                    <div id="dealAlertMessage" style="display:none;margin-top:1rem;"></div>
                 </form>
             </div>
         </div>
     </section>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('dealAlertForm');
+    const emailInput = document.getElementById('alertEmail');
+    const categoriesSelect = document.getElementById('alertCategories');
+    const messageDiv = document.getElementById('dealAlertMessage');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        const selected = Array.from(categoriesSelect.selectedOptions).map(opt => opt.value);
+        messageDiv.style.display = 'none';
+        messageDiv.className = '';
+
+        // Email validation
+        if (!email.match(/^\S+@\S+\.\S+$/)) {
+            messageDiv.textContent = 'Please enter a valid email address.';
+            messageDiv.style.display = 'block';
+            messageDiv.style.color = '#e74c3c';
+            return;
+        }
+        // At least one category
+        if (selected.length === 0) {
+            messageDiv.textContent = 'Please select at least one category.';
+            messageDiv.style.display = 'block';
+            messageDiv.style.color = '#e74c3c';
+            return;
+        }
+        // Simulate success (replace with real API call if needed)
+        messageDiv.textContent = 'Thank you for subscribing to deal alerts!';
+        messageDiv.style.display = 'block';
+        messageDiv.style.color = '#2bff05';
+        form.reset();
+    });
+});
+</script>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>BookStore</h3>
+                    <h3>Magenta</h3>
                     <p>Your trusted source for quality books and exceptional reading experiences.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook"></i></a>
@@ -275,15 +309,15 @@
                 <div class="footer-section">
                     <h4>Contact Info</h4>
                     <div class="contact-info">
-                        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                        <p><i class="fas fa-envelope"></i> info@bookstore.com</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 123 Book Street, Reading City, RC 12345</p>
+                        <p><i class="fas fa-phone"></i> +254123456789</p>
+                        <p><i class="fas fa-envelope"></i> info@Magenta.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2024 BookStore. All rights reserved.</p>
+                <p>&copy; 2025 Magenta. All rights reserved.</p>
             </div>
         </div>
     </footer>

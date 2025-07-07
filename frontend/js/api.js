@@ -1,8 +1,13 @@
 // API Service for Online Book Store
 class ApiService {
     constructor() {
+<<<<<<< HEAD
         this.baseUrl = 'http://localhost:3000/api'; // Update with your actual API URL
         this.token = localStorage.getItem('token');
+=======
+        this.baseURL = 'http://localhost:3000/api'; // Node.js backend
+        this.phpURL = 'http://localhost/bookstore/php'; // PHP scripts (legacy)
+>>>>>>> 34622f094c83388c787f60a3dec7ce229027abf8
     }
 
     // Set authentication token
@@ -56,6 +61,7 @@ class ApiService {
     // Authentication endpoints
     async login(credentials) {
         try {
+<<<<<<< HEAD
             // For demo purposes, simulate API response
             // In a real app, this would be an actual API call
             const response = await this.request('/auth/login', {
@@ -95,11 +101,45 @@ class ApiService {
             }
         } catch (error) {
             return { success: false, message: error.message };
+=======
+            const response = await fetch(`${this.baseURL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(credentials)
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Login failed');
+            }
+
+            return {
+                success: true,
+                user: {
+                    id: data.user.id,
+                    email: data.user.email,
+                    firstName: data.user.firstName,
+                    lastName: data.user.lastName,
+                    role: data.user.role,
+                    token: data.token
+                }
+            };
+        } catch (error) {
+            console.error('Login error:', error);
+            return {
+                success: false,
+                message: error.message || 'Login failed'
+            };
+>>>>>>> 34622f094c83388c787f60a3dec7ce229027abf8
         }
     }
 
     async register(userData) {
         try {
+<<<<<<< HEAD
             const response = await this.request('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify(userData)
@@ -120,10 +160,44 @@ class ApiService {
             return { success: true, user: newUser };
         } catch (error) {
             return { success: false, message: error.message };
+=======
+            const response = await fetch(`${this.baseURL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Registration failed');
+            }
+
+            return {
+                success: true,
+                user: {
+                    id: data.user.id,
+                    email: data.user.email,
+                    firstName: data.user.firstName,
+                    lastName: data.user.lastName,
+                    role: data.user.role,
+                    token: data.token
+                }
+            };
+        } catch (error) {
+            console.error('Registration error:', error);
+            return {
+                success: false,
+                message: error.message || 'Registration failed'
+            };
+>>>>>>> 34622f094c83388c787f60a3dec7ce229027abf8
         }
     }
 
     async logout() {
+<<<<<<< HEAD
         try {
             await this.request('/auth/logout', { method: 'POST' });
             this.clearToken();
@@ -137,6 +211,33 @@ class ApiService {
     // User management endpoints
     async getProfile() {
         return await this.request('/user/profile');
+=======
+        // For now, just return success since our backend doesn't have a logout endpoint
+        return { success: true };
+    }
+
+    async refreshToken() {
+        try {
+            const response = await fetch(`${this.baseURL}/auth/verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.getAuthToken()}`
+                }
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Token verification failed');
+            }
+
+            return { success: true, user: data.user };
+        } catch (error) {
+            console.error('Token refresh error:', error);
+            return { success: false, message: error.message };
+        }
+>>>>>>> 34622f094c83388c787f60a3dec7ce229027abf8
     }
 
     async updateProfile(profileData) {
@@ -333,7 +434,7 @@ class ApiService {
     formatPrice(price) {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'KES'
         }).format(price);
     }
 

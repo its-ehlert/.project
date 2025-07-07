@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestsellers - BookStore</title>
+    <title>Bestsellers - Magenta</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
                 <div class="nav-logo">
                     <a href="../index.html">
                         <i class="fas fa-book-open"></i>
-                        <span>BookStore</span>
+                        <span>Magenta</span>
                     </a>
                 </div>
                 
@@ -43,9 +43,6 @@
                         </li>
                         <li class="nav-item">
                             <a href="bestsellers.html" class="nav-link active">Bestsellers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="new-releases.html" class="nav-link">New Releases</a>
                         </li>
                         <li class="nav-item">
                             <a href="deals.html" class="nav-link">Deals</a>
@@ -155,17 +152,6 @@
                 </div>
             </div>
 
-            <!-- Romance Bestsellers -->
-            <div class="category-section">
-                <div class="section-header">
-                    <h3>Romance Bestsellers</h3>
-                    <a href="category.html?cat=romance" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="books-grid" id="romanceBestsellers">
-                    <!-- Romance bestsellers will be loaded here -->
-                </div>
-            </div>
-
             <!-- Business Bestsellers -->
             <div class="category-section">
                 <div class="section-header">
@@ -179,124 +165,13 @@
         </div>
     </section>
 
-    <!-- New York Times Bestsellers -->
-    <section class="nyt-bestsellers">
-        <div class="container">
-            <div class="section-header">
-                <h2>New York Times Bestsellers</h2>
-                <p>Updated weekly with the latest bestseller lists</p>
-            </div>
-            
-            <div class="nyt-tabs">
-                <button class="nyt-tab active" data-list="fiction">Fiction</button>
-                <button class="nyt-tab" data-list="nonfiction">Non-Fiction</button>
-                <button class="nyt-tab" data-list="childrens">Children's</button>
-                <button class="nyt-tab" data-list="young-adult">Young Adult</button>
-            </div>
-            
-            <div class="nyt-list" id="nytList">
-                <!-- NYT bestsellers will be loaded here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Award Winners -->
-    <section class="award-winners">
-        <div class="container">
-            <h2>Award-Winning Bestsellers</h2>
-            <div class="awards-grid">
-                <div class="award-category">
-                    <h3>Pulitzer Prize Winners</h3>
-                    <div class="books-grid" id="pulitzerWinners">
-                        <!-- Pulitzer winners will be loaded here -->
-                    </div>
-                </div>
-                
-                <div class="award-category">
-                    <h3>National Book Award Winners</h3>
-                    <div class="books-grid" id="nationalBookWinners">
-                        <!-- National Book Award winners will be loaded here -->
-                    </div>
-                </div>
-                
-                <div class="award-category">
-                    <h3>Man Booker Prize Winners</h3>
-                    <div class="books-grid" id="manBookerWinners">
-                        <!-- Man Booker winners will be loaded here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Bestseller Stats -->
-    <section class="bestseller-stats">
-        <div class="container">
-            <h2>Bestseller Statistics</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>1.2M+</h3>
-                        <p>Books Sold This Year</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>500K+</h3>
-                        <p>Happy Readers</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>4.8</h3>
-                        <p>Average Rating</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>50K+</h3>
-                        <p>Book Titles</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Newsletter -->
-    <section class="newsletter">
-        <div class="container">
-            <div class="newsletter-content">
-                <h2>Stay Updated with Bestsellers</h2>
-                <p>Get weekly updates on the latest bestsellers and exclusive deals.</p>
-                <form class="newsletter-form" id="newsletterForm">
-                    <input type="email" placeholder="Enter your email address" required>
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
-                </form>
-            </div>
-        </div>
-    </section>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>BookStore</h3>
+                    <h3>Magenta</h3>
                     <p>Your trusted source for quality books and exceptional reading experiences.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook"></i></a>
@@ -329,15 +204,15 @@
                 <div class="footer-section">
                     <h4>Contact Info</h4>
                     <div class="contact-info">
-                        <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                        <p><i class="fas fa-envelope"></i> info@bookstore.com</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 123 Book Street, Reading City, RC 12345</p>
+                        <p><i class="fas fa-phone"></i> +254123456789</p>
+                        <p><i class="fas fa-envelope"></i> info@Magenta.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
                     </div>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2024 BookStore. All rights reserved.</p>
+                <p>&copy; 2025 Magenta. All rights reserved.</p>
             </div>
         </div>
     </footer>

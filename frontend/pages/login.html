@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - BookStore</title>
+    <title>Sign in - Magenta</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<<<<<<< HEAD
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .role-selector {
@@ -59,23 +60,14 @@
             color: #1a73e8;
         }
     </style>
+=======
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+>>>>>>> 34622f094c83388c787f60a3dec7ce229027abf8
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-logo">
-                    <a href="../index.html">
-                        <i class="fas fa-book-open"></i>
-                        <span>BookStore</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </header>
+<body class="auth-body">
 
     <!-- Login Section -->
+<<<<<<< HEAD
     <section class="auth-section">
         <div class="container">
             <div class="auth-container">
@@ -152,14 +144,64 @@
                     <div class="auth-footer">
                         <p>Don't have an account? <a href="register.html">Sign up here</a></p>
                     </div>
+=======
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header-content">
+                    <h1>Sign in</h1>
+                    <p>to continue to Magenta</p>
+>>>>>>> 34622f094c83388c787f60a3dec7ce229027abf8
                 </div>
 
-                <div class="auth-image">
-                    <img src="../images/login-illustration.png" alt="Login">
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="email" id="email" name="email" required>
+                            <label for="email" class="floating-label">Email</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="password" id="password" name="password" required>
+                            <label for="password" class="floating-label">Password</label>
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="rememberMe">
+                            <span class="checkmark"></span>
+                            Stay signed in
+                        </label>
+                        <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+                    </div>
+
+                    <div class="auth-actions">
+                        <a href="register.html" class="create-account-link">Create account</a>
+                        <button type="submit" class="btn btn-primary">
+                            Sign in
+                        </button>
+                    </div>
+                </form>
+
+                <div class="auth-divider">
+                    <span>or</span>
+                </div>
+
+                <div class="social-auth">
+                    <button class="btn btn-social btn-google">
+                        <i class="fab fa-google"></i>
+                        Sign in with Google
+                    </button>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
     <!-- Loading Spinner -->
     <div class="loading-spinner" id="loadingSpinner">
@@ -171,6 +213,7 @@
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script>
+<<<<<<< HEAD
         let selectedRole = 'customer';
 
         // Initialize page
@@ -276,6 +319,100 @@
         function hideLoadingSpinner() {
             const spinner = document.getElementById('loadingSpinner');
             spinner.classList.remove('show');
+=======
+        // Initialize API and Auth
+        const api = new BookStoreAPI();
+        const auth = new AuthManager();
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.querySelector('input[name="rememberMe"]').checked;
+
+            if (!email || !password) {
+                showNotification('Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                showLoadingSpinner();
+                
+                const result = await auth.login({ email, password });
+                
+                if (result) {
+                    // Login successful
+                    showNotification('Login successful!', 'success');
+                    
+                    // Redirect to home page or specified redirect
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirect = urlParams.get('redirect');
+                    if (redirect) {
+                        window.location.href = `../${redirect}`;
+                    } else {
+                        window.location.href = '../index.html';
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('Login failed. Please try again.', 'error');
+            } finally {
+                hideLoadingSpinner();
+            }
+        });
+
+        // Handle password toggle
+        document.getElementById('passwordToggle').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        });
+
+        // Show notification function
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <span>${message}</span>
+                    <button class="notification-close">&times;</button>
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+            
+            // Close button functionality
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.parentNode.removeChild(notification);
+            });
+        }
+
+        // Show/hide loading spinner
+        function showLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'flex';
+        }
+
+        function hideLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+>>>>>>> 34622f094c83388c787f60a3dec7ce229027abf8
         }
     </script>
 </body>
