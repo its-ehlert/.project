@@ -425,6 +425,16 @@
             <form class="modal-form" id="addUserForm">
                 <div class="form-row">
                     <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
                         <label>First Name</label>
                         <input type="text" name="firstName" required>
                     </div>
@@ -434,10 +444,6 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" required>
-                </div>
-                <div class="form-group">
                     <label>Password</label>
                     <input type="password" name="password" required>
                 </div>
@@ -445,8 +451,13 @@
                     <label>Role</label>
                     <select name="role" required>
                         <option value="user">User</option>
+                        <option value="editor">Editor</option>
                         <option value="admin">Admin</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Access</label>
+                    <input type="text" name="access" placeholder="e.g. full, limited, read-only">
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('addUserModal')">Cancel</button>

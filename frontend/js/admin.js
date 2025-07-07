@@ -520,13 +520,17 @@ class AdminPanel {
     async addUser(formData) {
         try {
             this.showLoading();
-            
+            // Convert FormData to a plain object
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+
             const response = await fetch('/api/users', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: formData
+                body: JSON.stringify(data)
             });
 
             if (!response.ok) {

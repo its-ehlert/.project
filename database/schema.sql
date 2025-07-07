@@ -12,6 +12,7 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('admin', 'customer') DEFAULT 'customer',
+    access VARCHAR(50) DEFAULT 'full' AFTER role,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
