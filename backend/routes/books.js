@@ -21,21 +21,30 @@ const storage = multer.diskStorage({
     }
 });
 
+// Update multer to accept both image and PDF
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
+        fileSize: 10 * 1024 * 1024 // 10MB limit for all files
     },
     fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Only image files are allowed'));
+        const allowedImageTypes = /jpeg|jpg|png|gif|webp/;
+        const allowedPdfType = /pdf/;
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (file.fieldname === 'coverImage') {
+            if (allowedImageTypes.test(ext) && allowedImageTypes.test(file.mimetype)) {
+                return cb(null, true);
+            } else {
+                return cb(new Error('Only image files are allowed for cover image'));
+            }
+        } else if (file.fieldname === 'bookPdf') {
+            if (allowedPdfType.test(ext) && file.mimetype === 'application/pdf') {
+                return cb(null, true);
+            } else {
+                return cb(new Error('Only PDF files are allowed for book PDF'));
+            }
         }
+        cb(new Error('Invalid file field'));
     }
 });
 
@@ -82,7 +91,10 @@ router.get('/', adminAuth, async (req, res) => {
 });
 
 // Add new book
-router.post('/', adminAuth, upload.single('coverImage'), async (req, res) => {
+router.post('/', adminAuth, upload.fields([
+    { name: 'coverImage', maxCount: 1 },
+    { name: 'bookPdf', maxCount: 1 }
+]), async (req, res) => {
     try {
         const {
             title,
@@ -156,16 +168,21 @@ router.post('/', adminAuth, upload.single('coverImage'), async (req, res) => {
 
         // Handle cover image
         let coverImageUrl = null;
-        if (req.file) {
-            coverImageUrl = `/uploads/books/${req.file.filename}`;
+        if (req.files && req.files['coverImage'] && req.files['coverImage'][0]) {
+            coverImageUrl = `/uploads/books/${req.files['coverImage'][0].filename}`;
+        }
+        // Handle book PDF
+        let pdfUrl = null;
+        if (req.files && req.files['bookPdf'] && req.files['bookPdf'][0]) {
+            pdfUrl = `/uploads/books/${req.files['bookPdf'][0].filename}`;
         }
 
         // Insert book
         const [bookResult] = await db.promise().query(`
             INSERT INTO books (
                 isbn, title, description, price, stock_quantity, publication_date,
-                language, page_count, format, cover_image_url, category_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                language, page_count, format, cover_image_url, pdf_url, category_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             isbn || null,
             title,
@@ -177,6 +194,7 @@ router.post('/', adminAuth, upload.single('coverImage'), async (req, res) => {
             pageCount || null,
             format || 'paperback',
             coverImageUrl,
+            pdfUrl,
             categoryId
         ]);
 
@@ -199,7 +217,8 @@ router.post('/', adminAuth, upload.single('coverImage'), async (req, res) => {
                 category,
                 price,
                 stock,
-                coverImage: coverImageUrl
+                coverImage: coverImageUrl,
+                pdfUrl: pdfUrl
             }
         });
 

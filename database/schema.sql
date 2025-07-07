@@ -273,3 +273,5 @@ INSERT INTO users (username, email, password_hash, role) VALUES
 
 INSERT INTO customers (user_id, first_name, last_name, phone) VALUES
 (2, 'John', 'Doe', '555-123-4567'); 
+
+ALTER TABLE books ADD COLUMN pdf_url VARCHAR(255) AFTER cover_image_url;

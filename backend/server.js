@@ -77,3 +77,19 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Admin API available at http://localhost:${PORT}/api/admin`);
 }); 
+
+const express = require('express');
+const router = express.Router();
+const db = require('./config/database');  // Adjust path if needed
+
+router.get('/test-db', async (req, res) => {
+  try {
+    const [rows] = await db.promise.query('SELECT 1');
+    res.send('✅ Database Connected Successfully!');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('❌ Database Connection Failed');
+  }
+});
+
+module.exports = router;
