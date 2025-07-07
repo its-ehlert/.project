@@ -2822,14 +2822,6 @@ p {
   min-height: 100vh;
 }
 
-.auth-header {
-  background: #1a1a2e;
-  border-bottom: 1px solid #2d2e4a;
-  padding: 1rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
 
 .auth-header-container {
   max-width: 450px;

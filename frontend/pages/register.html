@@ -61,6 +61,9 @@
                         <div class="input-container">
                             <input type="password" id="confirmPassword" name="confirmPassword" required>
                             <label for="confirmPassword" class="floating-label">Confirm password</label>
+                            <button type="button" class="password-toggle" id="confirmPasswordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -167,11 +170,21 @@
             }
         });
 
-        // Handle password toggle
+        // Handle password toggle for both password and confirm password
         document.getElementById('passwordToggle').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
-            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        });
+        document.getElementById('confirmPasswordToggle').addEventListener('click', function() {
+            const passwordInput = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 icon.className = 'fas fa-eye-slash';

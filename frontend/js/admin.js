@@ -18,9 +18,21 @@ class AdminPanel {
             window.location.href = 'admin-login.html';
             return;
         }
-
-        // Verify admin token
-        this.verifyAdminToken(adminToken);
+        // Accept the hardcoded token for JS-only login
+        if (adminToken === 'fake-admin-token') {
+            this.currentUser = {
+                username: 'admin',
+                email: 'admin@example.com',
+                role: 'admin',
+                firstName: 'Admin',
+                lastName: '',
+                avatar: ''
+            };
+            this.updateAdminInfo();
+        } else {
+            // Verify admin token with backend for real tokens
+            this.verifyAdminToken(adminToken);
+        }
     }
 
     // Verify admin authentication token
@@ -676,12 +688,23 @@ class AdminPanel {
 // Admin login functionality
 class AdminAuth {
     constructor() {
+        this.errorContainer = null;
         this.bindEvents();
     }
 
     bindEvents() {
         const loginForm = document.getElementById('adminLoginForm');
         if (loginForm) {
+            // Insert error container above the form if not present
+            if (!document.getElementById('adminLoginError')) {
+                this.errorContainer = document.createElement('div');
+                this.errorContainer.id = 'adminLoginError';
+                this.errorContainer.style.display = 'none';
+                this.errorContainer.className = 'notification notification-error';
+                loginForm.parentNode.insertBefore(this.errorContainer, loginForm);
+            } else {
+                this.errorContainer = document.getElementById('adminLoginError');
+            }
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.login(new FormData(loginForm));
@@ -700,17 +723,17 @@ class AdminAuth {
     async login(formData) {
         try {
             this.showLoading();
-            
-            const response = await fetch('/api/admin/login', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) throw new Error('Invalid credentials');
-
-            const data = await response.json();
-            localStorage.setItem('adminToken', data.token);
-            window.location.href = 'admin-dashboard.html';
+            this.showError(''); // Clear previous error
+            // Hardcoded admin credentials
+            const username = formData.get('username');
+            const password = formData.get('password');
+            if (username === 'admin' && password === 'admin123') {
+                // Store a fake token
+                localStorage.setItem('adminToken', 'fake-admin-token');
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                throw new Error('Invalid username or password');
+            }
         } catch (error) {
             console.error('Login failed:', error);
             this.showError('Invalid username or password');
@@ -748,8 +771,18 @@ class AdminAuth {
     }
 
     showError(message) {
-        // Implementation for error notification
-        console.error('Error:', message);
+        if (this.errorContainer) {
+            if (message) {
+                this.errorContainer.textContent = message;
+                this.errorContainer.style.display = 'block';
+            } else {
+                this.errorContainer.textContent = '';
+                this.errorContainer.style.display = 'none';
+            }
+        } else {
+            // fallback to console
+            if (message) console.error('Error:', message);
+        }
     }
 }
 

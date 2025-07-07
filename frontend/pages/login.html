@@ -7,142 +7,64 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        .role-selector {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .role-option {
-            flex: 1;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        
-        .role-option:hover {
-            border-color: #1a73e8;
-            background: #f7fafd;
-        }
-        
-        .role-option.selected {
-            border-color: #1a73e8;
-            background: #e8f0fe;
-            color: #1a73e8;
-        }
-        
-        .role-option i {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        
-        .role-option h3 {
-            margin: 0.5rem 0;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-        
-        .role-option p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .role-option.selected p {
-            color: #1a73e8;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="auth-body">
 
     <!-- Login Section -->
-    <section class="auth-section">
-        <div class="container">
-            <div class="auth-container">
-                <div class="auth-card">
-                    <div class="auth-header">
-                        <h1>Welcome Back</h1>
-                        <p>Sign in to your account to continue</p>
-                    </div>
-
-                    <!-- Role Selector -->
-                    <div class="role-selector">
-                        <div class="role-option" data-role="customer" onclick="selectRole('customer')">
-                            <i class="fas fa-user"></i>
-                            <h3>Customer</h3>
-                            <p>Browse books and make purchases</p>
-                        </div>
-                        <div class="role-option" data-role="admin" onclick="selectRole('admin')">
-                            <i class="fas fa-user-shield"></i>
-                            <h3>Admin</h3>
-                            <p>Manage store and users</p>
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header-content">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your account to continue</p>
+                </div>
+                <form class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="email" id="email" name="email" required>
+                            <label for="email" class="floating-label">Email Address</label>
                         </div>
                     </div>
-
-                    <form class="auth-form" id="loginForm">
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <div class="input-group">
-                                <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" name="email" required>
-                            </div>
+                    <div class="form-group">
+                        <div class="input-container">
+                            <input type="password" id="password" name="password" required>
+                            <label for="password" class="floating-label">Password</label>
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
-
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <div class="input-group">
-                                <i class="fas fa-lock"></i>
-                                <input type="password" id="password" name="password" required>
-                                <button type="button" class="password-toggle" id="passwordToggle">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="form-options">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="rememberMe">
-                                <span class="checkmark"></span>
-                                Remember me
-                            </label>
-                            <a href="forgot-password.html" class="forgot-link">Forgot Password?</a>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-full">
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="rememberMe">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="forgot-password.html" class="forgot-link">Forgot Password?</a>
+                    </div>
+                    <div class="auth-actions">
+                        <button type="submit" class="btn btn-primary">
                             <i class="fas fa-sign-in-alt"></i>
                             Sign In
                         </button>
-                    </form>
-
-                    <div class="auth-divider">
-                        <span>or</span>
                     </div>
-
-                    <div class="social-auth">
-                        <button class="btn btn-social btn-google">
-                            <i class="fab fa-google"></i>
-                            Continue with Google
-                        </button>
-                        <button class="btn btn-social btn-facebook">
-                            <i class="fab fa-facebook-f"></i>
-                            Continue with Facebook
-                        </button>
-                    </div>
-
-                    <div class="auth-footer">
-                        <p>Don't have an account? <a href="register.html">Sign up here</a></p>
-                    </div>
+                </form>
+                <div class="auth-divider">
+                    <span>or</span>
+                </div>
+                <div class="social-auth">
+                    <button class="btn btn-social btn-google">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                </div>
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="register.html">Sign up here</a></p>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
     <!-- Loading Spinner -->
     <div class="loading-spinner" id="loadingSpinner">
@@ -179,6 +101,18 @@
         if (!email || !password) return;
         // Use selectedRole
         await auth.login({ email, password, role: selectedRole });
+    });
+    // Password toggle logic
+    document.getElementById('passwordToggle').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
     });
     </script>
 </body>
