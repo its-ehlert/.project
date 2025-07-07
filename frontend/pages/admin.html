@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - BookStore</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f4f6fb;
+        }
+        .admin-app {
+            display: flex;
+            min-height: 100vh;
+        }
+        .admin-sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem 1rem 1rem;
+            box-shadow: 2px 0 12px rgba(102,126,234,0.08);
+        }
+        .admin-sidebar .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .admin-sidebar nav {
+            width: 100%;
+        }
+        .admin-sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .admin-sidebar nav a.active, .admin-sidebar nav a:hover {
+            background: rgba(255,255,255,0.12);
+        }
+        .admin-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-topbar {
+            background: #fff;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.07);
+        }
+        .admin-topbar .admin-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+        .admin-topbar .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .admin-topbar .admin-user span {
+            font-weight: 500;
+            color: #667eea;
+        }
+        .admin-topbar .logout-btn {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .admin-topbar .logout-btn:hover {
+            background: #5a6fd8;
+        }
+        .admin-dashboard {
+            padding: 2rem;
+            background: #f4f6fb;
+            flex: 1;
+        }
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .dashboard-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(102,126,234,0.08);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .dashboard-card:hover {
+            box-shadow: 0 8px 32px rgba(102,126,234,0.15);
+            transform: translateY(-4px);
+        }
+        .dashboard-card .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        .dashboard-card .label {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+        .dashboard-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+        .admin-section {
+            margin-bottom: 2.5rem;
+        }
+        .admin-section h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 1.2rem;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.07);
+        }
+        .admin-table th, .admin-table td {
+            padding: 1rem;
+            text-align: left;
+        }
+        .admin-table th {
+            background: #f4f6fb;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .admin-table tr:not(:last-child) {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .admin-table td .action-btn {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 0.3rem 0.8rem;
+            margin-right: 0.5rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .admin-table td .action-btn.delete {
+            background: #e74c3c;
+        }
+        .admin-table td .action-btn:hover {
+            background: #5a6fd8;
+        }
+        .admin-table td .action-btn.delete:hover {
+            background: #c0392b;
+        }
+        @media (max-width: 900px) {
+            .admin-app {
+                flex-direction: column;
+            }
+            .admin-sidebar {
+                flex-direction: row;
+                width: 100%;
+                height: auto;
+                padding: 1rem 0.5rem;
+                justify-content: space-between;
+            }
+            .admin-main {
+                padding: 0;
+            }
+        }
+        @media (max-width: 600px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            .admin-dashboard {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-app">
+        <aside class="admin-sidebar">
+            <div class="logo"><i class="fas fa-book-open"></i> Admin</div>
+            <nav>
+                <a href="#dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="#books"><i class="fas fa-book"></i> Books</a>
+                <a href="#users"><i class="fas fa-users"></i> Users</a>
+                <a href="#orders"><i class="fas fa-shopping-bag"></i> Orders</a>
+                <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+            </nav>
+        </aside>
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <div class="admin-title" id="adminPageTitle">Admin Dashboard</div>
+                <div class="admin-user">
+                    <span>Admin User</span>
+                    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+            <div class="admin-dashboard">
+                <div id="dashboardSection">
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card">
+                            <div class="icon"><i class="fas fa-book"></i></div>
+                            <div class="label">Total Books</div>
+                            <div class="value">1,234</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="icon"><i class="fas fa-users"></i></div>
+                            <div class="label">Total Users</div>
+                            <div class="value">5,678</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="icon"><i class="fas fa-shopping-bag"></i></div>
+                            <div class="label">Total Orders</div>
+                            <div class="value">9,012</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="label">Revenue</div>
+                            <div class="value">$45,678</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="booksSection" style="display:none;">
+                    <div class="admin-section">
+                        <h2>Recent Books</h2>
+                        <table class="admin-table">
+                            <thead>
+                                <tr><th>Title</th><th>Author</th><th>Category</th><th>Stock</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>The Great Gatsby</td><td>F. Scott Fitzgerald</td><td>Fiction</td><td>45</td>
+                                    <td><button class="action-btn" onclick="showEditModal('The Great Gatsby')">Edit</button><button class="action-btn delete" onclick="showDeleteModal('The Great Gatsby')">Delete</button></td>
+                                </tr>
+                                <tr>
+                                    <td>1984</td><td>George Orwell</td><td>Fiction</td><td>28</td>
+                                    <td><button class="action-btn" onclick="showEditModal('1984')">Edit</button><button class="action-btn delete" onclick="showDeleteModal('1984')">Delete</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="usersSection" style="display:none;">
+                    <div class="admin-section">
+                        <h2>Recent Users</h2>
+                        <table class="admin-table">
+                            <thead>
+                                <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>John Doe</td><td>john@example.com</td><td>Customer</td><td>Active</td>
+                                    <td><button class="action-btn" onclick="showViewModal('John Doe')">View</button><button class="action-btn" onclick="showEditModal('John Doe')">Edit</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Jane Smith</td><td>jane@example.com</td><td>Customer</td><td>Active</td>
+                                    <td><button class="action-btn" onclick="showViewModal('Jane Smith')">View</button><button class="action-btn" onclick="showEditModal('Jane Smith')">Edit</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="ordersSection" style="display:none;">
+                    <div class="admin-section">
+                        <h2>Recent Orders</h2>
+                        <table class="admin-table">
+                            <thead>
+                                <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#12345</td><td>John Doe</td><td>$29.99</td><td>Pending</td><td>2024-01-20</td>
+                                    <td><button class="action-btn" onclick="showViewModal('Order #12345')">View</button><button class="action-btn" onclick="showEditModal('Order #12345')">Update</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#12344</td><td>Jane Smith</td><td>$14.99</td><td>Completed</td><td>2024-01-19</td>
+                                    <td><button class="action-btn" onclick="showViewModal('Order #12344')">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="settingsSection" style="display:none;">
+                    <div class="admin-section">
+                        <h2>Settings</h2>
+                        <p>Settings functionality coming soon.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div id="adminModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:1000;align-items:center;justify-content:center;">
+                <div style="background:#fff;padding:2rem 2.5rem;border-radius:12px;min-width:300px;max-width:90vw;box-shadow:0 8px 32px rgba(102,126,234,0.15);text-align:center;">
+                    <div id="modalContent"></div>
+                    <button style="margin-top:1.5rem;padding:0.5rem 1.2rem;background:#667eea;color:#fff;border:none;border-radius:6px;font-weight:500;cursor:pointer;" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Sidebar navigation functionality
+        const navLinks = document.querySelectorAll('.admin-sidebar nav a');
+        const sections = {
+            dashboard: document.getElementById('dashboardSection'),
+            books: document.getElementById('booksSection'),
+            users: document.getElementById('usersSection'),
+            orders: document.getElementById('ordersSection'),
+            settings: document.getElementById('settingsSection')
+        };
+        const pageTitle = document.getElementById('adminPageTitle');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                // Hide all sections
+                Object.values(sections).forEach(sec => sec.style.display = 'none');
+                // Show selected section
+                const hash = this.getAttribute('href').replace('#','');
+                if (sections[hash]) {
+                    sections[hash].style.display = '';
+                    pageTitle.textContent = this.textContent.trim();
+                }
+            });
+        });
+        // Modal functionality
+        function showEditModal(item) {
+            showModal(`<h3>Edit</h3><p>Edit functionality for <b>${item}</b> coming soon.</p>`);
+        }
+        function showDeleteModal(item) {
+            showModal(`<h3>Delete</h3><p>Are you sure you want to delete <b>${item}</b>?<br><br><button style='background:#e74c3c;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:6px;font-weight:500;cursor:pointer;margin-top:1rem;' onclick='confirmDelete(\'${item}\')'>Yes, Delete</button></p>`);
+        }
+        function showViewModal(item) {
+            showModal(`<h3>View</h3><p>Viewing details for <b>${item}</b> (details coming soon).</p>`);
+        }
+        function showModal(html) {
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+        function confirmDelete(item) {
+            closeModal();
+            alert(`Deleted: ${item}`);
+        }
+        function logout() {
+            alert('Logging out...');
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html> 

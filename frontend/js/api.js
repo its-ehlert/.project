@@ -1,342 +1,332 @@
 // API Service for Online Book Store
-class BookStoreAPI {
+class ApiService {
     constructor() {
-        this.baseURL = 'http://localhost:8080/api'; // Java Spring Boot backend
-        this.phpURL = 'http://localhost/bookstore/php'; // PHP scripts
+        this.baseUrl = 'http://localhost:3000/api'; // Update with your actual API URL
+        this.token = localStorage.getItem('token');
     }
 
-    // Generic request method
+    // Set authentication token
+    setToken(token) {
+        this.token = token;
+        localStorage.setItem('token', token);
+    }
+
+    // Clear authentication token
+    clearToken() {
+        this.token = null;
+        localStorage.removeItem('token');
+    }
+
+    // Make HTTP request
     async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
+        const url = `${this.baseUrl}${endpoint}`;
         
-        const defaultOptions = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.getAuthToken()}`
-            },
-            ...options
+        // Set default headers
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        // Add authorization header if token exists
+        if (this.token) {
+            headers['Authorization'] = `Bearer ${this.token}`;
+        }
+
+        const config = {
+            method: 'GET',
+            ...options,
+            headers
         };
 
         try {
-            const response = await fetch(url, defaultOptions);
-            
+            const response = await fetch(url, config);
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(data.message || 'Request failed');
             }
-            
-            return await response.json();
+
+            return data;
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
         }
     }
 
-    // Get authentication token
-    getAuthToken() {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        return user.token || null;
-    }
-
-    // Books API
-    async getBooks(params = {}) {
-        const queryString = new URLSearchParams(params).toString();
-        const endpoint = `/books${queryString ? `?${queryString}` : ''}`;
-        return this.request(endpoint);
-    }
-
-    async getBook(id) {
-        return this.request(`/books/${id}`);
-    }
-
-    async searchBooks(query, filters = {}) {
-        const params = { q: query, ...filters };
-        return this.getBooks(params);
-    }
-
-    async getBooksByCategory(category) {
-        return this.request(`/books/category/${category}`);
-    }
-
-    async getFeaturedBooks() {
-        return this.request('/books/featured');
-    }
-
-    async getBestsellers() {
-        return this.request('/books/bestsellers');
-    }
-
-    async getNewReleases() {
-        return this.request('/books/new-releases');
-    }
-
-    async getBooksOnSale() {
-        return this.request('/books/on-sale');
-    }
-
-    // Categories API
-    async getCategories() {
-        return this.request('/categories');
-    }
-
-    async getCategory(id) {
-        return this.request(`/categories/${id}`);
-    }
-
-    // Authors API
-    async getAuthors() {
-        return this.request('/authors');
-    }
-
-    async getAuthor(id) {
-        return this.request(`/authors/${id}`);
-    }
-
-    async getAuthorBooks(authorId) {
-        return this.request(`/authors/${authorId}/books`);
-    }
-
-    // Authentication API
+    // Authentication endpoints
     async login(credentials) {
-        return this.request('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify(credentials)
-        });
+        try {
+            // For demo purposes, simulate API response
+            // In a real app, this would be an actual API call
+            const response = await this.request('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify(credentials)
+            });
+
+            // Simulate role-based authentication
+            if (credentials.role === 'admin') {
+                // Admin login simulation
+                const adminUser = {
+                    id: 'admin-1',
+                    email: credentials.email,
+                    firstName: 'Admin',
+                    lastName: 'User',
+                    role: 'admin',
+                    isActive: true,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.setToken('admin-token-123');
+                return { success: true, user: adminUser };
+            } else {
+                // Customer login simulation
+                const customerUser = {
+                    id: 'customer-1',
+                    email: credentials.email,
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    role: 'customer',
+                    isActive: true,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.setToken('customer-token-123');
+                return { success: true, user: customerUser };
+            }
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     }
 
     async register(userData) {
-        return this.request('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(userData)
-        });
+        try {
+            const response = await this.request('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify(userData)
+            });
+
+            // Simulate registration response
+            const newUser = {
+                id: `user-${Date.now()}`,
+                email: userData.email,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                role: userData.role || 'customer',
+                isActive: true,
+                createdAt: new Date().toISOString()
+            };
+
+            this.setToken('new-user-token-123');
+            return { success: true, user: newUser };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     }
 
     async logout() {
-        return this.request('/auth/logout', {
-            method: 'POST'
-        });
+        try {
+            await this.request('/auth/logout', { method: 'POST' });
+            this.clearToken();
+            return { success: true };
+        } catch (error) {
+            this.clearToken();
+            return { success: false, message: error.message };
+        }
     }
 
-    async refreshToken() {
-        return this.request('/auth/refresh', {
-            method: 'POST'
-        });
+    // User management endpoints
+    async getProfile() {
+        return await this.request('/user/profile');
     }
 
-    // User Profile API
-    async getUserProfile() {
-        return this.request('/users/profile');
-    }
-
-    async updateUserProfile(profileData) {
-        return this.request('/users/profile', {
+    async updateProfile(profileData) {
+        const response = await this.request('/user/profile', {
             method: 'PUT',
             body: JSON.stringify(profileData)
         });
+        return response;
     }
 
     async changePassword(passwordData) {
-        return this.request('/users/change-password', {
+        const response = await this.request('/user/change-password', {
             method: 'POST',
             body: JSON.stringify(passwordData)
         });
+        return response;
     }
 
-    // Cart API
-    async getCart() {
-        return this.request('/cart');
-    }
-
-    async addToCart(cartItem) {
-        return this.request('/cart/add', {
+    async resetPassword(email) {
+        const response = await this.request('/auth/reset-password', {
             method: 'POST',
-            body: JSON.stringify(cartItem)
+            body: JSON.stringify({ email })
         });
+        return response;
     }
 
-    async updateCartItem(itemId, quantity) {
-        return this.request(`/cart/items/${itemId}`, {
+    // Book endpoints
+    async getBooks(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        const endpoint = queryString ? `/books?${queryString}` : '/books';
+        return await this.request(endpoint);
+    }
+
+    async getBook(id) {
+        return await this.request(`/books/${id}`);
+    }
+
+    async createBook(bookData) {
+        const response = await this.request('/books', {
+            method: 'POST',
+            body: JSON.stringify(bookData)
+        });
+        return response;
+    }
+
+    async updateBook(id, bookData) {
+        const response = await this.request(`/books/${id}`, {
             method: 'PUT',
-            body: JSON.stringify({ quantity })
+            body: JSON.stringify(bookData)
         });
+        return response;
     }
 
-    async removeFromCart(itemId) {
-        return this.request(`/cart/items/${itemId}`, {
+    async deleteBook(id) {
+        const response = await this.request(`/books/${id}`, {
             method: 'DELETE'
         });
+        return response;
     }
 
-    async clearCart() {
-        return this.request('/cart/clear', {
-            method: 'DELETE'
-        });
+    // Category endpoints
+    async getCategories() {
+        return await this.request('/categories');
     }
 
-    // Wishlist API
-    async getWishlist() {
-        return this.request('/wishlist');
+    async getCategory(id) {
+        return await this.request(`/categories/${id}`);
     }
 
-    async addToWishlist(bookId) {
-        return this.request('/wishlist/add', {
-            method: 'POST',
-            body: JSON.stringify({ bookId })
-        });
+    // Order endpoints
+    async getOrders(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        const endpoint = queryString ? `/orders?${queryString}` : '/orders';
+        return await this.request(endpoint);
     }
 
-    async removeFromWishlist(bookId) {
-        return this.request(`/wishlist/remove/${bookId}`, {
-            method: 'DELETE'
-        });
-    }
-
-    // Orders API
-    async getOrders() {
-        return this.request('/orders');
-    }
-
-    async getOrder(orderId) {
-        return this.request(`/orders/${orderId}`);
+    async getOrder(id) {
+        return await this.request(`/orders/${id}`);
     }
 
     async createOrder(orderData) {
-        return this.request('/orders', {
+        const response = await this.request('/orders', {
             method: 'POST',
             body: JSON.stringify(orderData)
         });
+        return response;
     }
 
-    async cancelOrder(orderId) {
-        return this.request(`/orders/${orderId}/cancel`, {
-            method: 'PUT'
+    async updateOrder(id, orderData) {
+        const response = await this.request(`/orders/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(orderData)
         });
+        return response;
     }
 
-    // Reviews API
+    // User management (admin only)
+    async getUsers(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        const endpoint = queryString ? `/admin/users?${queryString}` : '/admin/users';
+        return await this.request(endpoint);
+    }
+
+    async getUser(id) {
+        return await this.request(`/admin/users/${id}`);
+    }
+
+    async updateUser(id, userData) {
+        const response = await this.request(`/admin/users/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(userData)
+        });
+        return response;
+    }
+
+    async deleteUser(id) {
+        const response = await this.request(`/admin/users/${id}`, {
+            method: 'DELETE'
+        });
+        return response;
+    }
+
+    // Analytics endpoints (admin only)
+    async getAnalytics(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        const endpoint = queryString ? `/admin/analytics?${queryString}` : '/admin/analytics';
+        return await this.request(endpoint);
+    }
+
+    async getSalesData(period = 'month') {
+        return await this.request(`/admin/analytics/sales?period=${period}`);
+    }
+
+    async getTopBooks(limit = 10) {
+        return await this.request(`/admin/analytics/top-books?limit=${limit}`);
+    }
+
+    // Search endpoints
+    async searchBooks(query, params = {}) {
+        const searchParams = { q: query, ...params };
+        const queryString = new URLSearchParams(searchParams).toString();
+        return await this.request(`/search/books?${queryString}`);
+    }
+
+    // Wishlist endpoints
+    async getWishlist() {
+        return await this.request('/user/wishlist');
+    }
+
+    async addToWishlist(bookId) {
+        const response = await this.request('/user/wishlist', {
+            method: 'POST',
+            body: JSON.stringify({ bookId })
+        });
+        return response;
+    }
+
+    async removeFromWishlist(bookId) {
+        const response = await this.request(`/user/wishlist/${bookId}`, {
+            method: 'DELETE'
+        });
+        return response;
+    }
+
+    // Review endpoints
     async getBookReviews(bookId) {
-        return this.request(`/books/${bookId}/reviews`);
+        return await this.request(`/books/${bookId}/reviews`);
     }
 
-    async addReview(bookId, reviewData) {
-        return this.request(`/books/${bookId}/reviews`, {
+    async createReview(bookId, reviewData) {
+        const response = await this.request(`/books/${bookId}/reviews`, {
             method: 'POST',
             body: JSON.stringify(reviewData)
         });
+        return response;
     }
 
     async updateReview(reviewId, reviewData) {
-        return this.request(`/reviews/${reviewId}`, {
+        const response = await this.request(`/reviews/${reviewId}`, {
             method: 'PUT',
             body: JSON.stringify(reviewData)
         });
+        return response;
     }
 
     async deleteReview(reviewId) {
-        return this.request(`/reviews/${reviewId}`, {
+        const response = await this.request(`/reviews/${reviewId}`, {
             method: 'DELETE'
         });
-    }
-
-    // Coupons API
-    async validateCoupon(code) {
-        return this.request(`/coupons/validate/${code}`);
-    }
-
-    // Addresses API
-    async getUserAddresses() {
-        return this.request('/users/addresses');
-    }
-
-    async addAddress(addressData) {
-        return this.request('/users/addresses', {
-            method: 'POST',
-            body: JSON.stringify(addressData)
-        });
-    }
-
-    async updateAddress(addressId, addressData) {
-        return this.request(`/users/addresses/${addressId}`, {
-            method: 'PUT',
-            body: JSON.stringify(addressData)
-        });
-    }
-
-    async deleteAddress(addressId) {
-        return this.request(`/users/addresses/${addressId}`, {
-            method: 'DELETE'
-        });
-    }
-
-    // PHP API calls for dynamic content
-    async getPHPData(endpoint, params = {}) {
-        const url = `${this.phpURL}/${endpoint}`;
-        const queryString = new URLSearchParams(params).toString();
-        const fullURL = queryString ? `${url}?${queryString}` : url;
-
-        try {
-            const response = await fetch(fullURL);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('PHP API request failed:', error);
-            throw error;
-        }
-    }
-
-    // PHP specific endpoints
-    async getHomePageData() {
-        return this.getPHPData('home.php');
-    }
-
-    async getCategoryPageData(categoryId) {
-        return this.getPHPData('category.php', { id: categoryId });
-    }
-
-    async getBookDetailsData(bookId) {
-        return this.getPHPData('book-details.php', { id: bookId });
-    }
-
-    async getSearchResultsData(query, filters = {}) {
-        return this.getPHPData('search.php', { q: query, ...filters });
-    }
-
-    async getBestsellersData() {
-        return this.getPHPData('bestsellers.php');
-    }
-
-    async getNewReleasesData() {
-        return this.getPHPData('new-releases.php');
-    }
-
-    async getDealsData() {
-        return this.getPHPData('deals.php');
-    }
-
-    // Error handling
-    handleError(error) {
-        console.error('API Error:', error);
-        
-        if (error.message.includes('401')) {
-            // Unauthorized - redirect to login
-            localStorage.removeItem('user');
-            window.location.href = '/pages/login.html';
-        } else if (error.message.includes('403')) {
-            // Forbidden
-            showNotification('Access denied. Please check your permissions.', 'error');
-        } else if (error.message.includes('404')) {
-            // Not found
-            showNotification('The requested resource was not found.', 'error');
-        } else if (error.message.includes('500')) {
-            // Server error
-            showNotification('Server error. Please try again later.', 'error');
-        } else {
-            // Generic error
-            showNotification('An error occurred. Please try again.', 'error');
-        }
+        return response;
     }
 
     // Utility methods
@@ -347,35 +337,37 @@ class BookStoreAPI {
         }).format(price);
     }
 
-    formatDate(dateString) {
-        return new Date(dateString).toLocaleDateString('en-US', {
+    formatDate(date) {
+        return new Date(date).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
     }
 
-    truncateText(text, maxLength = 100) {
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength) + '...';
-    }
-
-    generateSlug(text) {
-        return text
-            .toLowerCase()
-            .replace(/[^a-z0-9 -]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim('-');
+    // Error handling
+    handleError(error) {
+        console.error('API Error:', error);
+        
+        if (error.message === 'Unauthorized') {
+            // Token expired or invalid
+            this.clearToken();
+            window.location.href = '/pages/login.html';
+        }
+        
+        return {
+            success: false,
+            message: error.message || 'An error occurred'
+        };
     }
 }
 
 // Create global API instance
-const api = new BookStoreAPI();
+const api = new ApiService();
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = BookStoreAPI;
+    module.exports = ApiService;
 }
 
 // Global error handler for unhandled promise rejections

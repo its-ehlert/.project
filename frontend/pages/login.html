@@ -8,6 +8,57 @@
     <link rel="stylesheet" href="../css/responsive.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .role-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .role-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .role-option:hover {
+            border-color: #1a73e8;
+            background: #f7fafd;
+        }
+        
+        .role-option.selected {
+            border-color: #1a73e8;
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        
+        .role-option i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .role-option h3 {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .role-option p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .role-option.selected p {
+            color: #1a73e8;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -31,7 +82,21 @@
                 <div class="auth-card">
                     <div class="auth-header">
                         <h1>Welcome Back</h1>
-                        <p>Sign in to your account to continue shopping</p>
+                        <p>Sign in to your account to continue</p>
+                    </div>
+
+                    <!-- Role Selector -->
+                    <div class="role-selector">
+                        <div class="role-option" data-role="customer" onclick="selectRole('customer')">
+                            <i class="fas fa-user"></i>
+                            <h3>Customer</h3>
+                            <p>Browse books and make purchases</p>
+                        </div>
+                        <div class="role-option" data-role="admin" onclick="selectRole('admin')">
+                            <i class="fas fa-user-shield"></i>
+                            <h3>Admin</h3>
+                            <p>Manage store and users</p>
+                        </div>
                     </div>
 
                     <form class="auth-form" id="loginForm">
@@ -105,5 +170,113 @@
     <script src="../js/main.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
+    <script>
+        let selectedRole = 'customer';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default role
+            selectRole('customer');
+            
+            // Initialize form
+            initLoginForm();
+        });
+
+        // Role selection
+        function selectRole(role) {
+            selectedRole = role;
+            
+            // Update visual selection
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            document.querySelector(`[data-role="${role}"]`).classList.add('selected');
+            
+            // Update form action based on role
+            const submitBtn = document.querySelector('.btn-primary');
+            if (role === 'admin') {
+                submitBtn.innerHTML = '<i class="fas fa-user-shield"></i> Sign In as Admin';
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            }
+        }
+
+        // Initialize login form
+        function initLoginForm() {
+            const form = document.getElementById('loginForm');
+            const passwordToggle = document.getElementById('passwordToggle');
+            const passwordInput = document.getElementById('password');
+
+            // Password toggle
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                this.innerHTML = `<i class="fas fa-${type === 'password' ? 'eye' : 'eye-slash'}"></i>`;
+            });
+
+            // Form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const rememberMe = document.querySelector('input[name="rememberMe"]').checked;
+
+                if (!email || !password) {
+                    showNotification('Please fill in all fields', 'error');
+                    return;
+                }
+
+                try {
+                    showLoadingSpinner();
+                    
+                    // Create credentials object with role
+                    const credentials = {
+                        email: email,
+                        password: password,
+                        role: selectedRole,
+                        rememberMe: rememberMe
+                    };
+
+                    // Attempt login
+                    const success = await auth.login(credentials);
+                    
+                    if (success) {
+                        // Redirect based on role
+                        if (selectedRole === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            // Check for redirect parameter
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const redirect = urlParams.get('redirect');
+                            if (redirect) {
+                                window.location.href = redirect;
+                            } else {
+                                window.location.href = '../index.html';
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showNotification('Login failed. Please try again.', 'error');
+                } finally {
+                    hideLoadingSpinner();
+                }
+            });
+        }
+
+        // Show loading spinner
+        function showLoadingSpinner() {
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.classList.add('show');
+        }
+
+        // Hide loading spinner
+        function hideLoadingSpinner() {
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.classList.remove('show');
+        }
+    </script>
 </body>
 </html> 

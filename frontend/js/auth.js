@@ -1,92 +1,116 @@
-// Authentication Management for Online Book Store
+// Authentication Manager for Online Book Store
 class AuthManager {
     constructor() {
-        this.currentUser = this.loadUser();
+        this.currentUser = null;
+        this.isInitialized = false;
         this.init();
     }
 
     // Initialize authentication
     init() {
-        this.updateAuthUI();
-        this.bindEvents();
-        this.checkTokenExpiry();
+        if (this.isInitialized) return;
+        
+        // Load user from localStorage
+        this.loadUser();
+        
+        // Check for expired sessions
+        this.checkSessionExpiry();
+        
+        this.isInitialized = true;
     }
 
     // Load user from localStorage
     loadUser() {
-        const userData = localStorage.getItem('user');
-        return userData ? JSON.parse(userData) : null;
+        try {
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                this.currentUser = UserFactory.createUser(JSON.parse(userData));
+            }
+        } catch (error) {
+            console.error('Error loading user:', error);
+            this.logout();
+        }
     }
 
     // Save user to localStorage
     saveUser(userData) {
-        localStorage.setItem('user', JSON.stringify(userData));
-        this.currentUser = userData;
-        this.updateAuthUI();
-    }
-
-    // Clear user data
-    clearUser() {
-        localStorage.removeItem('user');
-        this.currentUser = null;
-        this.updateAuthUI();
-    }
-
-    // Update authentication UI
-    updateAuthUI() {
-        const loginLink = document.getElementById('loginLink');
-        const registerLink = document.getElementById('registerLink');
-        const profileLink = document.getElementById('profileLink');
-        const ordersLink = document.getElementById('ordersLink');
-        const logoutLink = document.getElementById('logoutLink');
-        const userBtn = document.getElementById('userBtn');
-
-        if (this.currentUser) {
-            // User is logged in
-            if (loginLink) loginLink.style.display = 'none';
-            if (registerLink) registerLink.style.display = 'none';
-            if (profileLink) profileLink.style.display = 'block';
-            if (ordersLink) ordersLink.style.display = 'block';
-            if (logoutLink) logoutLink.style.display = 'block';
-
-            // Update user button with user info
-            if (userBtn) {
-                userBtn.innerHTML = `
-                    <i class="fas fa-user"></i>
-                    <span class="user-name">${this.currentUser.firstName || 'User'}</span>
-                `;
-            }
-        } else {
-            // User is not logged in
-            if (loginLink) loginLink.style.display = 'block';
-            if (registerLink) registerLink.style.display = 'block';
-            if (profileLink) profileLink.style.display = 'none';
-            if (ordersLink) ordersLink.style.display = 'none';
-            if (logoutLink) logoutLink.style.display = 'none';
-
-            // Reset user button
-            if (userBtn) {
-                userBtn.innerHTML = '<i class="fas fa-user"></i>';
-            }
+        try {
+            this.currentUser = UserFactory.createUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('loginTime', Date.now().toString());
+        } catch (error) {
+            console.error('Error saving user:', error);
         }
     }
 
-    // Bind authentication events
-    bindEvents() {
-        // Logout link
-        const logoutLink = document.getElementById('logoutLink');
-        if (logoutLink) {
-            logoutLink.addEventListener('click', (e) => {
-                e.preventDefault();
+    // Check if user is authenticated
+    isAuthenticated() {
+        return this.currentUser !== null && this.currentUser.isActive;
+    }
+
+    // Get current user
+    getCurrentUser() {
+        return this.currentUser;
+    }
+
+    // Check if user has specific role
+    hasRole(role) {
+        return this.isAuthenticated() && this.currentUser.role === role;
+    }
+
+    // Check if user is admin
+    isAdmin() {
+        return this.hasRole('admin');
+    }
+
+    // Check if user is customer
+    isCustomer() {
+        return this.hasRole('customer');
+    }
+
+    // Check session expiry
+    checkSessionExpiry() {
+        const loginTime = localStorage.getItem('loginTime');
+        if (loginTime) {
+            const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours
+            const currentTime = Date.now();
+            
+            if (currentTime - parseInt(loginTime) > sessionDuration) {
                 this.logout();
-            });
+                showNotification('Session expired. Please login again.', 'info');
+            }
         }
+    }
 
-        // Check for redirect after login
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirect = urlParams.get('redirect');
-        if (redirect && this.currentUser) {
-            window.location.href = `/pages/${redirect}.html`;
+    // Register new user
+    async register(userData) {
+        try {
+            showLoadingSpinner();
+            
+            const response = await api.register(userData);
+            
+            if (response.success) {
+                this.saveUser(response.user);
+                showNotification('Registration successful!', 'success');
+                
+                // Redirect based on role
+                if (response.user.role === 'admin') {
+                    window.location.href = '/pages/admin.html';
+                } else {
+                    window.location.href = '/';
+                }
+                
+                return true;
+            } else {
+                showNotification(response.message || 'Registration failed', 'error');
+                return false;
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            showNotification('Registration failed. Please try again.', 'error');
+            return false;
+        } finally {
+            hideLoadingSpinner();
         }
     }
 
@@ -95,19 +119,29 @@ class AuthManager {
         try {
             showLoadingSpinner();
             
+            // Add role to credentials if not present
+            if (!credentials.role) {
+                credentials.role = 'customer'; // Default role
+            }
+            
             const response = await api.login(credentials);
             
             if (response.success) {
                 this.saveUser(response.user);
                 showNotification('Login successful!', 'success');
                 
-                // Redirect if specified
-                const urlParams = new URLSearchParams(window.location.search);
-                const redirect = urlParams.get('redirect');
-                if (redirect) {
-                    window.location.href = `/pages/${redirect}.html`;
+                // Redirect based on role
+                if (response.user.role === 'admin') {
+                    window.location.href = '/pages/admin.html';
                 } else {
-                    window.location.href = '/';
+                    // Check for redirect parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirect = urlParams.get('redirect');
+                    if (redirect) {
+                        window.location.href = redirect;
+                    } else {
+                        window.location.href = '/';
+                    }
                 }
                 
                 return true;
@@ -124,97 +158,15 @@ class AuthManager {
         }
     }
 
-    // Register user
-    async register(userData) {
-        try {
-            showLoadingSpinner();
-            
-            const response = await api.register(userData);
-            
-            if (response.success) {
-                this.saveUser(response.user);
-                showNotification('Registration successful! Welcome to BookStore!', 'success');
-                window.location.href = '/';
-                return true;
-            } else {
-                showNotification(response.message || 'Registration failed', 'error');
-                return false;
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            showNotification('Registration failed. Please try again.', 'error');
-            return false;
-        } finally {
-            hideLoadingSpinner();
-        }
-    }
-
     // Logout user
-    async logout() {
-        try {
-            if (this.currentUser && this.currentUser.token) {
-                await api.logout();
-            }
-        } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            this.clearUser();
-            showNotification('Logged out successfully', 'info');
-            window.location.href = '/';
-        }
-    }
-
-    // Check if user is authenticated
-    isAuthenticated() {
-        return this.currentUser !== null && this.currentUser.token;
-    }
-
-    // Check if user has specific role
-    hasRole(role) {
-        return this.currentUser && this.currentUser.role === role;
-    }
-
-    // Check if user is admin
-    isAdmin() {
-        return this.hasRole('admin');
-    }
-
-    // Get current user
-    getCurrentUser() {
-        return this.currentUser;
-    }
-
-    // Check token expiry
-    checkTokenExpiry() {
-        if (this.currentUser && this.currentUser.expiresAt) {
-            const now = new Date().getTime();
-            const expiresAt = new Date(this.currentUser.expiresAt).getTime();
-            
-            if (now >= expiresAt) {
-                // Token expired
-                this.clearUser();
-                showNotification('Your session has expired. Please log in again.', 'error');
-                window.location.href = '/pages/login.html';
-            }
-        }
-    }
-
-    // Refresh token
-    async refreshToken() {
-        try {
-            const response = await api.refreshToken();
-            if (response.success) {
-                this.saveUser(response.user);
-                return true;
-            } else {
-                this.clearUser();
-                return false;
-            }
-        } catch (error) {
-            console.error('Token refresh error:', error);
-            this.clearUser();
-            return false;
-        }
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('user');
+        localStorage.removeItem('loginTime');
+        localStorage.removeItem('cart');
+        
+        // Redirect to login page
+        window.location.href = '/pages/login.html';
     }
 
     // Update user profile
@@ -222,7 +174,7 @@ class AuthManager {
         try {
             showLoadingSpinner();
             
-            const response = await api.updateUserProfile(profileData);
+            const response = await api.updateProfile(profileData);
             
             if (response.success) {
                 this.saveUser(response.user);
@@ -264,6 +216,29 @@ class AuthManager {
         }
     }
 
+    // Reset password
+    async resetPassword(email) {
+        try {
+            showLoadingSpinner();
+            
+            const response = await api.resetPassword(email);
+            
+            if (response.success) {
+                showNotification('Password reset email sent!', 'success');
+                return true;
+            } else {
+                showNotification(response.message || 'Password reset failed', 'error');
+                return false;
+            }
+        } catch (error) {
+            console.error('Password reset error:', error);
+            showNotification('Password reset failed. Please try again.', 'error');
+            return false;
+        } finally {
+            hideLoadingSpinner();
+        }
+    }
+
     // Require authentication for protected pages
     requireAuth(redirectUrl = '/pages/login.html') {
         if (!this.isAuthenticated()) {
@@ -283,15 +258,37 @@ class AuthManager {
         }
         return true;
     }
+
+    // Require customer role for customer pages
+    requireCustomer(redirectUrl = '/') {
+        if (!this.isCustomer()) {
+            showNotification('Access denied. Customer account required.', 'error');
+            window.location.href = redirectUrl;
+            return false;
+        }
+        return true;
+    }
+
+    // Check if user can access specific resource
+    canAccess(resource) {
+        if (!this.isAuthenticated()) return false;
+        return this.currentUser.canAccess(resource);
+    }
+
+    // Get user permissions
+    getPermissions() {
+        if (!this.isAuthenticated()) return [];
+        
+        if (this.isAdmin()) {
+            return this.currentUser.permissions;
+        }
+        
+        return [];
+    }
 }
 
-// Create global auth instance
+// Initialize authentication manager
 const auth = new AuthManager();
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AuthManager;
-}
 
 // Login page functionality
 if (window.location.pathname.includes('login.html')) {
@@ -507,12 +504,12 @@ function hideLoadingSpinner() {
 
 // Auto-check token expiry every minute
 setInterval(() => {
-    auth.checkTokenExpiry();
+    auth.checkSessionExpiry();
 }, 60000);
 
 // Handle page visibility change
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
-        auth.checkTokenExpiry();
+        auth.checkSessionExpiry();
     }
 }); 
