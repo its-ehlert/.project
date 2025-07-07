@@ -521,7 +521,7 @@ class AdminPanel {
         try {
             this.showLoading();
             
-            const response = await fetch('/api/admin/users', {
+            const response = await fetch('/api/users', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
