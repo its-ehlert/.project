@@ -927,6 +927,8 @@ class AdminPanel {
                 bookauthor: bookData.author,
                 bookType: bookData.category,
                 isbn: bookData.isbn || '',
+                edition: bookData.edition || '',
+                publicationDate: bookData.publicationDate || '',
                 bookurl: bookData.bookUrl || '',
                 price: bookData.price,
                 stock: bookData.stock,
@@ -1225,6 +1227,12 @@ class AdminPanel {
             edition: bookData.edition || '',
             publicationDate: bookData.publicationDate || '',
             bookurl: bookData.bookUrl || '',
+            price: bookData.price,
+            stock: bookData.stock,
+            bookDescription: bookData.bookDescription || '',
+            featured: bookData.featured || false,
+            available: bookData.available || false,
+            coverImage: bookData.coverImage || '',
             favorite: bookData.favorite || false,
             read: bookData.read || false,
             addedDate: new Date().toISOString()
@@ -1235,6 +1243,7 @@ class AdminPanel {
         
         this.showSuccess('Book added successfully to local storage!');
         this.loadBooks(); // Reload the books table
+        this.resetAddBookForm();
     }
 
     // Remove book from localStorage
@@ -1268,12 +1277,16 @@ class AdminPanel {
             form.querySelector('[name="author"]').value = book.bookauthor;
             form.querySelector('[name="category"]').value = book.bookType;
             form.querySelector('[name="isbn"]').value = book.isbn;
+            form.querySelector('[name="edition"]').value = book.edition;
+            form.querySelector('[name="publicationDate"]').value = book.publicationDate;
             form.querySelector('[name="bookUrl"]').value = book.bookurl;
             form.querySelector('[name="price"]').value = book.price;
             form.querySelector('[name="stock"]').value = book.stock;
             form.querySelector('[name="description"]').value = book.bookDescription || '';
             form.querySelector('[name="featured"]').checked = !!book.featured;
             form.querySelector('[name="available"]').checked = !!book.available;
+            form.querySelector('[name="favorite"]').checked = !!book.favorite;
+            form.querySelector('[name="read"]').checked = !!book.read;
             uploadedCoverImage = book.coverImage || '';
             if (coverImagePreview) {
                 if (uploadedCoverImage) {
@@ -1286,9 +1299,27 @@ class AdminPanel {
             form.dataset.mode = 'edit';
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.textContent = 'Update Book';
+            const modalTitle = form.closest('.modal-content').querySelector('.modal-header h2');
+            if (modalTitle) modalTitle.innerHTML = '<i class="fas fa-edit"></i> Edit Book';
         }
         
         this.showAddBookModal();
+    }
+
+    // Reset add/edit book form and modal state
+    resetAddBookForm() {
+        const form = document.getElementById('addBookForm');
+        if (form) {
+            form.reset();
+            form.dataset.mode = '';
+            form.dataset.editIndex = '';
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Add Book';
+            const modalTitle = form.closest('.modal-content').querySelector('.modal-header h2');
+            if (modalTitle) modalTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Add New Book';
+            if (coverImagePreview) coverImagePreview.innerHTML = '';
+            uploadedCoverImage = '';
+        }
     }
 
     // Logout admin
