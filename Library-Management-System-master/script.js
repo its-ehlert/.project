@@ -380,23 +380,30 @@ function searchBook() {
 function editBook(index) {
   let bookDetails = JSON.parse(localStorage.getItem("shelfOfBooks"))[index];
 
-  console.log(bookDetails);
   name.value = bookDetails.book;
   author.value = bookDetails.bookauthor;
+  isbn.value = bookDetails.bookisbn;
+  edition.value = bookDetails.bookedition;
+  publicationD.value = bookDetails.bookpublication;
+  url.value = bookDetails.bookurl;
+  bookDescription.value = bookDetails.bookDescription || '';
+  favorite.checked = !!bookDetails.favorite;
+  read.checked = !!bookDetails.readStatus;
 
-  switch (bookDetails.bookType) {
-    case "other":
-      others.checked = true;
-      break;
-    case "fiction":
-      fiction.checked = true;
-      break;
-    case "programming":
-      programming.checked = true;
-      break;
-    case "science":
-      science.checked = true;
-      break;
+  // Set the correct radio button for bookType
+  const typeOptions = document.querySelectorAll('input[name="type"]');
+  typeOptions.forEach(option => {
+    option.checked = (option.value === bookDetails.bookType);
+  });
+
+  // Show custom type input if 'Other' is selected
+  const newTypeGroup = document.getElementById('newTypeGroup');
+  if (bookDetails.bookType === 'Other') {
+    newTypeGroup.style.display = 'block';
+    document.getElementById('newType').value = bookDetails.bookType;
+  } else {
+    newTypeGroup.style.display = 'none';
+    document.getElementById('newType').value = '';
   }
 
   editIndex = index;
