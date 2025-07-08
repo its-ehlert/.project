@@ -7,6 +7,8 @@ let isbn = document.getElementById("isbnno");
 let edition = document.getElementById("edition");
 let publicationD = document.getElementById("publicationdate");
 let read = document.getElementById("read-toggle");
+let bookDescription = document.getElementById("bookDescription");
+let charCount = document.getElementById("charCount");
 
 let url = document.getElementById("bookurl");
 let favorite = document.getElementById("fav-toggle");
@@ -20,238 +22,360 @@ let others = document.getElementById("other");
 
 let editIndex = -1;
 
-// Adding Books
-libraryForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const isValidUrl = (urlString) => {
-    var urlPattern = new RegExp(
-      "^(https?:\\/\\/)?" + // validate protocol
-      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // validate domain name
-      "((\\d{1,3}\\.){3}\\d{1,3}))" + // validate OR ip (v4) address
-      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // validate port and path
-      "(\\?[;&a-z\\d%_.~+=-]*)?" + // validate query string
-      "(\\#[-a-z\\d_]*)?$",
-      "i"
-    ); // validate fragment locator
-    return !!urlPattern.test(urlString);
-  };
-  if (!isValidUrl(url.value)) {
-    alert("Invalid URL ");
-    url.value = "";
-    return;
-  }
-  const isValidIsbn = (subject) => {
-    subject = subject.replaceAll("-", "");
-    console.log(subject.length);
-    if (subject.length == 10) {
-      let sum = 0;
-      for (let i = 9; i >= 0; i--) {
-        sum += parseInt(subject[i], 10) * (i + 1);
-      }
-      if (sum % 11 == 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } else if (subject.length == 13) {
-      subject = subject.replaceAll("-", "");
+// Enhanced form functionality
+document.addEventListener('DOMContentLoaded', function() {
+    initializeForm();
+});
 
-      let sum = 0;
-      for (let i = 0; i < 13; i++) {
-        if (i % 2 == 0) {
-          sum += parseInt(subject[i], 10) * 1;
-        } else {
-          sum += parseInt(subject[i], 10) * 3;
-        }
-      }
-      console.log(sum);
-      if (sum % 10 == 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
+function initializeForm() {
+    // Character counter for description
+    if (bookDescription && charCount) {
+        bookDescription.addEventListener('input', function() {
+            const maxLength = 300;
+            const currentLength = this.value.length;
+            charCount.textContent = currentLength;
+            
+            if (currentLength > maxLength * 0.8) {
+                charCount.style.color = currentLength > maxLength * 0.9 ? '#e74c3c' : '#f39c12';
+            } else {
+                charCount.style.color = '#667eea';
+            }
+        });
     }
-  };
-  if (!isValidIsbn(isbn.value)) {
-    alert("Invalid ISBN!");
-    return;
-  }
 
-  // Checking different types of books
-  if (fiction.checked) {
-    type = fiction.value;
-    programming.unchecked;
-    science.unchecked;
-  } else if (programming.checked) {
-    type = programming.value;
-    science.unchecked;
-    anime.unchecked;
-    fiction.unchecked;
-  } else if (science.checked) {
-    type = science.value;
-    fiction.unchecked;
-    programming.unchecked;
-    anime.unchecked;
-  } else if (anime.checked) {
-    type = anime.value;
-    fiction.unchecked;
-    programming.checked;
-    science.unchecked;
-  } else if (others.checked) {
-    type = newType.value ? newType.value : others.value;
-    fiction.unchecked;
-    programming.unchecked;
-    science.unchecked;
-    anime.unchecked;
-  } else {
-    type = "other";
-  }
-
-  // let shelf = localStorage.getItem("shelfOfBooks");
-
-  // let objOfBook; //object which stores books
-  // let alreadyAdded = false;
-
-  // // Check if the book is already in the library
-  // if (shelf == null) {
-  //   objOfBook = [];
-  // } else {
-  //   //We might have multiple books
-  //   objOfBook = JSON.parse(shelf); //By using JSON we convert it into Object
-
-  //   objOfBook.every((bookObj) => {
-  //     if (author === "") author = "Unknown";
-  //     let curBook = name === bookObj.book;
-  //     let curAuthor = author === bookObj.bookauthor;
-  //     let curBookType = type === bookObj.bookType;
-
-  //     if (curBook && curAuthor && curBookType) {
-  //       console.log("already added!");
-  //       alreadyAdded = true;
-  //       return false;
-  //     }
-  //     return true;
-  //   });
-  // }
-
-
-
-let shelf = localStorage.getItem("shelfOfBooks");
-
-let objOfBook; //object which stores books
-let alreadyAdded = false;
-
-// Check if the book is already in the library
-if (shelf == null) {
-  objOfBook = [];
-} else {
-  //We might have multiple books
-  objOfBook = JSON.parse(shelf); //By using JSON we convert it into Object
-
-  // Function to search for a book by name
-  function searchBookByName(bookName) {
-    return objOfBook.find((bookObj) => bookObj.book === bookName);
-  }
-
-  objOfBook.every((bookObj) => {
-    if (author === "") author = "Unknown";
-    let curBook = name === bookObj.book;
-    let curAuthor = author === bookObj.bookauthor;
-    let curBookType = type === bookObj.bookType;
-
-    if (curBook && curAuthor && curBookType) {
-      console.log("already added!");
-      alreadyAdded = true;
-      return false;
+    // Real-time validation
+    if (name) {
+        name.addEventListener('input', validateBookName);
     }
-    return true;
-  });
+    
+    if (author) {
+        author.addEventListener('input', validateAuthor);
+    }
+    
+    if (isbn) {
+        isbn.addEventListener('input', validateISBN);
+    }
+    
+    if (url) {
+        url.addEventListener('input', validateURL);
+    }
+
+    // Book type selection enhancement
+    const typeOptions = document.querySelectorAll('input[name="type"]');
+    typeOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            const newTypeGroup = document.getElementById('newTypeGroup');
+            if (this.value === 'Other') {
+                newTypeGroup.style.display = 'block';
+            } else {
+                newTypeGroup.style.display = 'none';
+            }
+        });
+    });
 }
 
+// Validation functions
+function validateBookName() {
+    const value = this.value.trim();
+    const isValid = value.length >= 2;
+    
+    if (isValid) {
+        this.style.borderColor = '#667eea';
+        this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+    } else {
+        this.style.borderColor = '#e74c3c';
+        this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+    }
+    
+    return isValid;
+}
+
+function validateAuthor() {
+    const value = this.value.trim();
+    const isValid = value.length >= 2;
+    
+    if (isValid) {
+        this.style.borderColor = '#667eea';
+        this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+    } else {
+        this.style.borderColor = '#e74c3c';
+        this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+    }
+    
+    return isValid;
+}
+
+function validateISBN() {
+    const value = this.value.trim();
+    if (value === '') return true; // ISBN is optional
+    
+    const isValid = isValidISBN(value);
+    
+    if (isValid) {
+        this.style.borderColor = '#667eea';
+        this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+    } else {
+        this.style.borderColor = '#e74c3c';
+        this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+    }
+    
+    return isValid;
+}
+
+function validateURL() {
+    const value = this.value.trim();
+    if (value === '') return true; // URL is optional
+    
+    const isValid = isValidURL(value);
+    
+    if (isValid) {
+        this.style.borderColor = '#667eea';
+        this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+    } else {
+        this.style.borderColor = '#e74c3c';
+        this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+    }
+    
+    return isValid;
+}
+
+// Enhanced validation functions
+function isValidISBN(subject) {
+    if (!subject) return true; // Empty ISBN is valid (optional field)
+    
+    subject = subject.replaceAll("-", "");
+    if (subject.length == 10) {
+        let sum = 0;
+        for (let i = 9; i >= 0; i--) {
+            sum += parseInt(subject[i], 10) * (i + 1);
+        }
+        return sum % 11 == 0;
+    } else if (subject.length == 13) {
+        let sum = 0;
+        for (let i = 0; i < 13; i++) {
+            if (i % 2 == 0) {
+                sum += parseInt(subject[i], 10) * 1;
+            } else {
+                sum += parseInt(subject[i], 10) * 3;
+            }
+        }
+        return sum % 10 == 0;
+    }
+    return false;
+}
+
+function isValidURL(urlString) {
+    if (!urlString) return true; // Empty URL is valid (optional field)
+    
+    var urlPattern = new RegExp(
+        "^(https?:\\/\\/)?" + // validate protocol
+        "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // validate domain name
+        "((\\d{1,3}\\.){3}\\d{1,3}))" + // validate OR ip (v4) address
+        "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // validate port and path
+        "(\\?[;&a-z\\d%_.~+=-]*)?" + // validate query string
+        "(\\#[-a-z\\d_]*)?$",
+        "i"
+    );
+    return !!urlPattern.test(urlString);
+}
+
+// Form submission with enhanced validation
+libraryForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    // Validate all required fields
+    const isNameValid = validateBookName.call(name);
+    const isAuthorValid = validateAuthor.call(author);
+    const isIsbnValid = validateISBN.call(isbn);
+    const isUrlValid = validateURL.call(url);
+    
+    if (!isNameValid || !isAuthorValid || !isIsbnValid || !isUrlValid) {
+        showNotification('Please fix the validation errors before submitting.', 'error');
+        return;
+    }
+
+    // Check if URL is valid
+    if (url.value && !isValidURL(url.value)) {
+        showNotification('Invalid URL format. Please enter a valid URL.', 'error');
+        url.value = "";
+        return;
+    }
+
+    // Check if ISBN is valid
+    if (isbn.value && !isValidISBN(isbn.value)) {
+        showNotification('Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.', 'error');
+        return;
+    }
+
+    // Get selected book type
+    const selectedType = document.querySelector('input[name="type"]:checked');
+    if (selectedType) {
+        if (selectedType.value === 'Other') {
+            const newType = document.getElementById('newType');
+            type = newType.value ? newType.value : 'Other';
+        } else {
+            type = selectedType.value;
+        }
+    } else {
+        type = "Other";
+    }
+
+    // Check for duplicate books
+    let shelf = localStorage.getItem("shelfOfBooks");
+    let objOfBook;
+    let alreadyAdded = false;
+
+    if (shelf == null) {
+        objOfBook = [];
+    } else {
+        objOfBook = JSON.parse(shelf);
+        
+        objOfBook.every((bookObj) => {
+            if (author.value === "") author.value = "Unknown";
+            let curBook = name.value === bookObj.book;
+            let curAuthor = author.value === bookObj.bookauthor;
+            let curBookType = type === bookObj.bookType;
+
+            if (curBook && curAuthor && curBookType) {
+                console.log("already added!");
+                alreadyAdded = true;
+                return false;
+            }
+            return true;
+        });
+    }
+
+    if (alreadyAdded === true) {
+        showNotification('This book is already in your library!', 'warning');
+        return;
+    }
+
+    // Create book object with enhanced data
+    const bookObj = {
+        book: name.value,
+        bookauthor: author.value || "Unknown",
+        bookType: type,
+        isbn: isbn.value || "",
+        edition: edition.value || "",
+        publicationDate: publicationD.value || "",
+        bookUrl: url.value || "",
+        description: bookDescription ? bookDescription.value : "",
+        isFavorite: favorite.checked,
+        isRead: read.checked,
+        dateAdded: new Date().toISOString(),
+        lastModified: new Date().toISOString()
+    };
+
+    objOfBook.push(bookObj);
+    localStorage.setItem("shelfOfBooks", JSON.stringify(objOfBook));
+
+    showNotification('Book added successfully!', 'success');
+    resetForm();
+    displayBooks();
+});
+
+// Enhanced form reset
+function resetForm() {
+    libraryForm.reset();
+    
+    // Reset validation styles
+    const inputs = libraryForm.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.style.borderColor = '#404040';
+        input.style.boxShadow = 'none';
+    });
+    
+    // Reset character counter
+    if (charCount) {
+        charCount.textContent = '0';
+        charCount.style.color = '#667eea';
+    }
+    
+    // Hide custom type input
+    const newTypeGroup = document.getElementById('newTypeGroup');
+    if (newTypeGroup) {
+        newTypeGroup.style.display = 'none';
+    }
+    
+    // Reset edit mode
+    editIndex = -1;
+    
+    // Update button text
+    const submitBtn = libraryForm.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Book';
+    }
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${getNotificationIcon(type)}"></i>
+            <p>${message}</p>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+    
+    // Close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        notification.remove();
+    });
+}
+
+function getNotificationIcon(type) {
+    switch (type) {
+        case 'success': return 'check-circle';
+        case 'error': return 'exclamation-circle';
+        case 'warning': return 'exclamation-triangle';
+        default: return 'info-circle';
+    }
+}
+
+// Search functionality
 const searchButton = document.getElementById("searchButton");
-searchButton.addEventListener("click", searchBook);
+if (searchButton) {
+    searchButton.addEventListener("click", searchBook);
+}
 
 // Function to handle the search when the user clicks the "Search" button
 function searchBook() {
-  let searchInput = document.getElementById("searchText");
-  alert(searchInput)
-  let enteredBookName = searchInput.value.trim();
+    let searchInput = document.getElementById("searchText");
+    let enteredBookName = searchInput.value.trim();
 
-  if (enteredBookName === "") {
-    alert("Please enter a book name.");
-    return;
-  }
-
-  let foundBook = searchBookByName(enteredBookName);
-
-  if (foundBook) {
-    // Book with the entered name exists, show an alert
-    alert(`The book "${enteredBookName}" is already in the library.`);
-  } else {
-    // Book with the entered name doesn't exist
-    alert(`The book "${enteredBookName}" was not found in the library.`);
-  }
-}
-
-
-  if (alreadyAdded === true) {
-    alreadyAddedMessage();
-    return;
-  } else {
-    // Book Name is mandatory field
-    if (name.value == "") {
-      errorMessage();
-    } else {
-      let myObj;
-      if (author.value != "") {
-        myObj = {
-          book: name.value,
-          bookauthor: author.value,
-          bookType: type,
-          bookurl: url.value == "" ? "/" : url.value,
-          bookisbn: isbn.value,
-          bookedition: edition.value,
-          bookpublication: publicationD.value,
-          readStatus: read.checked,
-          favorite: favorite.checked,
-        };
-      } else {
-        // Book Author not entered then set it to Unknown
-        myObj = {
-          book: name.value,
-          bookauthor: "Unknown",
-          bookType: type,
-          bookurl: url.value == "" ? "/" : url.value,
-          bookisbn: isbn.value,
-          bookedition: edition.value,
-          bookpublication: publicationD.value,
-          readStatus: read.checked,
-          favorite: favorite.checked,
-        };
-      }
-
-      if (editIndex != -1) {
-        objOfBook.splice(editIndex, 1, myObj);
-        addMessage(true);
-        editIndex = -1;
-      } else {
-        objOfBook.push(myObj);
-        addMessage();
-        UpdateBook();
-      }
-      localStorage.setItem("shelfOfBooks", JSON.stringify(objOfBook));
-      name.value = "";
-      author.value = "";
-      type = "";
-      isbn.value = "";
-      edition.value = "";
-      publicationD.value = "";
+    if (enteredBookName === "") {
+        showNotification("Please enter a book name.", "warning");
+        return;
     }
-    displayBooks();
-  }
-});
+
+    let shelf = localStorage.getItem("shelfOfBooks");
+    let objOfBook = shelf ? JSON.parse(shelf) : [];
+    let foundBook = objOfBook.find((bookObj) => bookObj.book === enteredBookName);
+
+    if (foundBook) {
+        showNotification(`The book "${enteredBookName}" is already in the library.`, "info");
+    } else {
+        showNotification(`The book "${enteredBookName}" was not found in the library.`, "info");
+    }
+}
 
 function editBook(index) {
   let bookDetails = JSON.parse(localStorage.getItem("shelfOfBooks"))[index];

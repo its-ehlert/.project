@@ -2,6 +2,8 @@
 class AdminPanel {
     constructor() {
         this.currentUser = null;
+        this.currentMode = 'api'; // 'api' or 'localStorage'
+        this.currentBookIndex = null;
         this.init();
     }
 
@@ -33,6 +35,19 @@ class AdminPanel {
             // Verify admin token with backend for real tokens
             this.verifyAdminToken(adminToken);
         }
+    }
+
+    // Switch between API and localStorage modes
+    switchToLocalStorageMode() {
+        this.currentMode = 'localStorage';
+        this.showSuccess('Switched to Local Storage mode');
+        this.loadBooks(); // Reload books from localStorage
+    }
+
+    switchToApiMode() {
+        this.currentMode = 'api';
+        this.showSuccess('Switched to API mode');
+        this.loadBooks(); // Reload books from API
     }
 
     // Verify admin authentication token
@@ -90,6 +105,14 @@ class AdminPanel {
         if (adminSearch) {
             adminSearch.addEventListener('input', (e) => {
                 this.handleGlobalSearch(e.target.value);
+            });
+        }
+
+        // Book search
+        const bookSearch = document.getElementById('bookSearch');
+        if (bookSearch) {
+            bookSearch.addEventListener('input', (e) => {
+                this.handleBookSearch(e.target.value);
             });
         }
 
@@ -170,24 +193,44 @@ class AdminPanel {
         try {
             this.showLoading();
             
-            const response = await fetch('/api/admin/dashboard', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                }
-            });
+            if (this.currentMode === 'api') {
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    }
+                });
 
-            if (!response.ok) throw new Error('Failed to load dashboard data');
+                if (!response.ok) throw new Error('Failed to load dashboard data');
 
-            const data = await response.json();
-            this.updateDashboardStats(data.stats);
-            this.updateRecentOrders(data.recentOrders);
-            this.updateRecentUsers(data.recentUsers);
+                const data = await response.json();
+                this.updateDashboardStats(data.stats);
+                this.updateRecentOrders(data.recentOrders);
+                this.updateRecentUsers(data.recentUsers);
+            } else {
+                // Use localStorage data for dashboard
+                this.updateDashboardStatsFromLocalStorage();
+            }
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             this.showError('Failed to load dashboard data');
+            // Fallback to localStorage
+            this.updateDashboardStatsFromLocalStorage();
         } finally {
             this.hideLoading();
         }
+    }
+
+    // Update dashboard statistics from localStorage
+    updateDashboardStatsFromLocalStorage() {
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        const totalBooks = books.length;
+        const favoriteBooks = books.filter(book => book.favorite).length;
+        const readBooks = books.filter(book => book.read).length;
+
+        document.getElementById('totalUsers').textContent = '1'; // Placeholder
+        document.getElementById('totalBooks').textContent = totalBooks.toString();
+        document.getElementById('totalOrders').textContent = '0'; // Placeholder
+        document.getElementById('totalRevenue').textContent = '$0'; // Placeholder
     }
 
     // Update dashboard statistics
@@ -292,16 +335,21 @@ class AdminPanel {
         try {
             this.showLoading();
             
-            const response = await fetch('/api/admin/books', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                }
-            });
+            if (this.currentMode === 'api') {
+                const response = await fetch('/api/admin/books', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    }
+                });
 
-            if (!response.ok) throw new Error('Failed to load books');
+                if (!response.ok) throw new Error('Failed to load books');
 
-            const books = await response.json();
-            this.renderBooksTable(books);
+                const books = await response.json();
+                this.renderBooksTable(books);
+            } else {
+                // Use localStorage data for books
+                this.renderBooksTableFromLocalStorage();
+            }
         } catch (error) {
             console.error('Error loading books:', error);
             this.showError('Failed to load books');
@@ -337,6 +385,45 @@ class AdminPanel {
                             <i class="fas fa-edit"></i>
                         </button>
                         <button class="action-btn delete" onclick="adminPanel.deleteBook('${book.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Render books table from localStorage
+    renderBooksTableFromLocalStorage() {
+        const tbody = document.getElementById('booksTableBody');
+        if (!tbody) return;
+
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        tbody.innerHTML = books.map((book, index) => `
+            <tr>
+                <td>
+                    <div class="book-info">
+                        <h4>${book.book}</h4>
+                        <p>${book.bookType}</p>
+                    </div>
+                </td>
+                <td>${book.bookauthor || 'Unknown'}</td>
+                <td><span class="badge">${book.bookType}</span></td>
+                <td>${book.isbn || 'N/A'}</td>
+                <td>
+                    <span class="status ${book.favorite ? 'favorite' : ''}">
+                        ${book.favorite ? 'Favorite' : 'Regular'}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-info" onclick="adminPanel.viewBook(${index})" title="View Book">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="adminPanel.editBookFromLocalStorage(${index})" title="Edit Book">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="adminPanel.removeBookFromLocalStorage(${index})" title="Delete Book">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -511,9 +598,247 @@ class AdminPanel {
         if (addBookForm) {
             addBookForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                this.addBook(new FormData(addBookForm));
+                const formData = new FormData(addBookForm);
+                
+                // Check if we're in edit mode
+                if (addBookForm.dataset.mode === 'edit') {
+                    this.updateBookInLocalStorage(parseInt(addBookForm.dataset.editIndex), formData);
+                } else {
+                    this.addBook(formData);
+                }
+            });
+
+            // Initialize form enhancements
+            this.initializeAddBookForm();
+        }
+    }
+
+    // Initialize add book form enhancements
+    initializeAddBookForm() {
+        // Character counter for description
+        const descriptionTextarea = document.getElementById('bookDescription');
+        const charCount = document.getElementById('charCount');
+        
+        if (descriptionTextarea && charCount) {
+            descriptionTextarea.addEventListener('input', (e) => {
+                const length = e.target.value.length;
+                charCount.textContent = length;
+                
+                if (length > 450) {
+                    charCount.style.color = '#e74c3c';
+                } else if (length > 400) {
+                    charCount.style.color = '#f39c12';
+                } else {
+                    charCount.style.color = '#667eea';
+                }
             });
         }
+
+        // File upload preview
+        this.initializeFileUploads();
+
+        // Form validation
+        this.initializeFormValidation();
+    }
+
+    // Initialize file upload previews
+    initializeFileUploads() {
+        const fileInputs = document.querySelectorAll('.file-upload-container input[type="file"]');
+        
+        fileInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                const container = input.closest('.file-upload-container');
+                const preview = container.querySelector('.file-upload-preview');
+                
+                if (file) {
+                    this.updateFilePreview(preview, file);
+                }
+            });
+        });
+    }
+
+    // Update file upload preview
+    updateFilePreview(preview, file) {
+        const icon = preview.querySelector('i');
+        const text = preview.querySelector('span');
+        const size = preview.querySelector('small');
+        
+        // Update icon based on file type
+        if (file.type.startsWith('image/')) {
+            icon.className = 'fas fa-image';
+        } else if (file.type === 'application/pdf') {
+            icon.className = 'fas fa-file-pdf';
+        } else {
+            icon.className = 'fas fa-file';
+        }
+        
+        // Update text
+        text.textContent = file.name;
+        
+        // Update size
+        const fileSize = this.formatFileSize(file.size);
+        size.textContent = fileSize;
+        
+        // Add success styling
+        preview.style.borderColor = '#27ae60';
+        preview.style.backgroundColor = 'rgba(39, 174, 96, 0.05)';
+    }
+
+    // Format file size
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Initialize form validation
+    initializeFormValidation() {
+        const form = document.getElementById('addBookForm');
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            input.addEventListener('blur', () => {
+                this.validateField(input);
+            });
+            
+            input.addEventListener('input', () => {
+                if (input.classList.contains('error')) {
+                    this.clearFieldError(input);
+                }
+            });
+        });
+    }
+
+    // Validate individual field
+    validateField(field) {
+        const value = field.value.trim();
+        const isRequired = field.hasAttribute('required');
+        
+        // Clear previous error
+        this.clearFieldError(field);
+        
+        // Check required fields
+        if (isRequired && !value) {
+            this.showFieldError(field, 'This field is required');
+            return false;
+        }
+        
+        // Validate specific field types
+        switch (field.type) {
+            case 'email':
+                if (value && !this.isValidEmail(value)) {
+                    this.showFieldError(field, 'Please enter a valid email address');
+                    return false;
+                }
+                break;
+            case 'url':
+                if (value && !this.isValidUrl(value)) {
+                    this.showFieldError(field, 'Please enter a valid URL');
+                    return false;
+                }
+                break;
+            case 'number':
+                if (value && parseFloat(value) < 0) {
+                    this.showFieldError(field, 'Please enter a positive number');
+                    return false;
+                }
+                break;
+        }
+        
+        // Validate ISBN if present
+        if (field.name === 'isbn' && value) {
+            if (!this.isValidIsbn(value)) {
+                this.showFieldError(field, 'Please enter a valid ISBN (10 or 13 digits)');
+                return false;
+            }
+        }
+        
+        // Mark as success
+        this.showFieldSuccess(field);
+        return true;
+    }
+
+    // Show field error
+    showFieldError(field, message) {
+        const formGroup = field.closest('.form-group');
+        formGroup.classList.add('error');
+        
+        // Remove existing error message
+        const existingError = formGroup.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Add new error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'error-message';
+        errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        formGroup.appendChild(errorMessage);
+    }
+
+    // Clear field error
+    clearFieldError(field) {
+        const formGroup = field.closest('.form-group');
+        formGroup.classList.remove('error');
+        
+        const errorMessage = formGroup.querySelector('.error-message');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+    }
+
+    // Show field success
+    showFieldSuccess(field) {
+        const formGroup = field.closest('.form-group');
+        formGroup.classList.remove('error');
+        formGroup.classList.add('success');
+        
+        // Remove success class after a delay
+        setTimeout(() => {
+            formGroup.classList.remove('success');
+        }, 2000);
+    }
+
+    // Validate email
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Validate URL
+    isValidUrl(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    // Validate ISBN
+    isValidIsbn(isbn) {
+        isbn = isbn.replaceAll("-", "");
+        if (isbn.length === 10) {
+            let sum = 0;
+            for (let i = 9; i >= 0; i--) {
+                sum += parseInt(isbn[i], 10) * (i + 1);
+            }
+            return sum % 11 === 0;
+        } else if (isbn.length === 13) {
+            let sum = 0;
+            for (let i = 0; i < 13; i++) {
+                if (i % 2 === 0) {
+                    sum += parseInt(isbn[i], 10) * 1;
+                } else {
+                    sum += parseInt(isbn[i], 10) * 3;
+                }
+            }
+            return sum % 10 === 0;
+        }
+        return false;
     }
 
     // Add new user
@@ -551,6 +876,15 @@ class AdminPanel {
 
     // Add new book
     async addBook(formData) {
+        if (this.currentMode === 'localStorage') {
+            // Add book to localStorage
+            const bookData = {};
+            formData.forEach((value, key) => { bookData[key] = value; });
+            this.addBookToLocalStorage(bookData);
+            this.closeModal('addBookModal');
+            return;
+        }
+
         try {
             this.showLoading();
             
@@ -575,6 +909,48 @@ class AdminPanel {
             this.showError(error.message || 'Failed to add book');
         } finally {
             this.hideLoading();
+        }
+    }
+
+    // Update book in localStorage
+    updateBookInLocalStorage(index, formData) {
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        
+        if (index >= 0 && index < books.length) {
+            const bookData = {};
+            formData.forEach((value, key) => { bookData[key] = value; });
+            
+            // Update the book
+            books[index] = {
+                ...books[index],
+                book: bookData.title,
+                bookauthor: bookData.author,
+                bookType: bookData.category,
+                isbn: bookData.isbn || '',
+                bookurl: bookData.bookUrl || ''
+            };
+            
+            localStorage.setItem('shelfOfBooks', JSON.stringify(books));
+            
+            // Reset form
+            const form = document.getElementById('addBookForm');
+            if (form) {
+                delete form.dataset.editIndex;
+                delete form.dataset.mode;
+                form.reset();
+                
+                // Reset button text
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.textContent = 'Add Book';
+                }
+            }
+            
+            this.showSuccess('Book updated successfully!');
+            this.closeModal('addBookModal');
+            this.loadBooks(); // Reload the books table
+        } else {
+            this.showError('Invalid book index');
         }
     }
 
@@ -658,6 +1034,248 @@ class AdminPanel {
     handleGlobalSearch(query) {
         console.log('Global search:', query);
         // Implementation for global search
+    }
+
+    // Handle book search
+    handleBookSearch(query) {
+        console.log('Book search:', query);
+        // Implementation for book search
+    }
+
+    // View book details
+    viewBook(index) {
+        if (this.currentMode === 'localStorage') {
+            this.viewBookFromLocalStorage(index);
+        } else {
+            this.viewBookFromApi(index);
+        }
+    }
+
+    // View book from localStorage
+    viewBookFromLocalStorage(index) {
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        const book = books[index];
+        
+        if (!book) {
+            this.showError('Book not found!');
+            return;
+        }
+
+        // Store current book index for download
+        this.currentBookIndex = index;
+        
+        // Update modal title
+        document.getElementById('modalBookTitle').textContent = book.book;
+        
+        // Create book details content
+        const bookContent = `
+            <div class="book-details">
+                <div class="book-header">
+                    <div class="book-cover">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="book-info">
+                        <h3>${book.book}</h3>
+                        <p class="author">by ${book.bookauthor || 'Unknown Author'}</p>
+                        <span class="book-type">${book.bookType}</span>
+                    </div>
+                </div>
+                
+                <div class="book-details-grid">
+                    <div class="detail-item">
+                        <label>ISBN:</label>
+                        <span>${book.isbn || 'Not available'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Edition:</label>
+                        <span>${book.edition || 'Not specified'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Publication Date:</label>
+                        <span>${book.publicationDate || 'Not available'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Added Date:</label>
+                        <span>${new Date(book.addedDate).toLocaleDateString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Status:</label>
+                        <span>
+                            ${book.favorite ? '<i class="fas fa-star" style="color: gold;"></i> Favorite' : 'Regular'}
+                            ${book.read ? ' | <i class="fas fa-check" style="color: green;"></i> Read' : ''}
+                        </span>
+                    </div>
+                </div>
+                
+                ${book.bookurl ? `
+                    <div class="book-url">
+                        <label>Book URL:</label>
+                        <a href="${book.bookurl}" target="_blank" class="book-link">
+                            <i class="fas fa-external-link-alt"></i> Open Book URL
+                        </a>
+                    </div>
+                ` : ''}
+                
+                <div class="book-actions">
+                    <button class="btn btn-primary" onclick="adminPanel.openBookUrl('${book.bookurl}')" ${!book.bookurl ? 'disabled' : ''}>
+                        <i class="fas fa-external-link-alt"></i> Open Book
+                    </button>
+                    ${book.bookurl ? `
+                        <button class="btn btn-success" onclick="adminPanel.downloadBook(${index})">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        // Update modal content
+        document.getElementById('modalBookContent').innerHTML = bookContent;
+        
+        // Show download button if URL exists
+        const downloadBtn = document.getElementById('downloadBookBtn');
+        if (downloadBtn) {
+            downloadBtn.style.display = book.bookurl ? 'inline-block' : 'none';
+        }
+        
+        // Show modal
+        document.getElementById('bookViewerModal').style.display = 'flex';
+    }
+
+    // View book from API
+    viewBookFromApi(bookId) {
+        // Implementation for viewing books from API
+        console.log('Viewing book from API:', bookId);
+    }
+
+    // Open book URL
+    openBookUrl(url) {
+        if (url) {
+            window.open(url, '_blank');
+        } else {
+            this.showError('No URL available for this book');
+        }
+    }
+
+    // Download book
+    downloadBook(index) {
+        if (this.currentMode === 'localStorage') {
+            this.downloadBookFromLocalStorage(index);
+        } else {
+            this.downloadBookFromApi(index);
+        }
+    }
+
+    // Download book from localStorage
+    downloadBookFromLocalStorage(index) {
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        const book = books[index];
+        
+        if (!book || !book.bookurl) {
+            this.showError('No download URL available for this book');
+            return;
+        }
+
+        try {
+            // Create a temporary link element to trigger download
+            const link = document.createElement('a');
+            link.href = book.bookurl;
+            link.download = `${book.book} - ${book.bookauthor}.pdf`;
+            link.target = '_blank';
+            
+            // Add to DOM, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            this.showSuccess('Download started!');
+        } catch (error) {
+            console.error('Download error:', error);
+            this.showError('Download failed. Please try opening the book URL instead.');
+        }
+    }
+
+    // Download book from API
+    downloadBookFromApi(bookId) {
+        // Implementation for downloading books from API
+        console.log('Downloading book from API:', bookId);
+    }
+
+    // Close book modal
+    closeBookModal() {
+        document.getElementById('bookViewerModal').style.display = 'none';
+        this.currentBookIndex = null;
+    }
+
+    // Add book to localStorage (from management.html functionality)
+    addBookToLocalStorage(bookData) {
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        
+        const newBook = {
+            book: bookData.title,
+            bookauthor: bookData.author,
+            bookType: bookData.category,
+            isbn: bookData.isbn || '',
+            edition: bookData.edition || '',
+            publicationDate: bookData.publicationDate || '',
+            bookurl: bookData.bookUrl || '',
+            favorite: bookData.favorite || false,
+            read: bookData.read || false,
+            addedDate: new Date().toISOString()
+        };
+        
+        books.push(newBook);
+        localStorage.setItem('shelfOfBooks', JSON.stringify(books));
+        
+        this.showSuccess('Book added successfully to local storage!');
+        this.loadBooks(); // Reload the books table
+    }
+
+    // Remove book from localStorage
+    removeBookFromLocalStorage(index) {
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        
+        if (index >= 0 && index < books.length) {
+            const removedBook = books.splice(index, 1)[0];
+            localStorage.setItem('shelfOfBooks', JSON.stringify(books));
+            this.showSuccess(`Book "${removedBook.book}" removed successfully!`);
+            this.loadBooks(); // Reload the books table
+        } else {
+            this.showError('Invalid book index');
+        }
+    }
+
+    // Edit book in localStorage
+    editBookFromLocalStorage(index) {
+        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
+        const book = books[index];
+        
+        if (!book) {
+            this.showError('Book not found!');
+            return;
+        }
+
+        // Populate the add book form with existing data
+        const form = document.getElementById('addBookForm');
+        if (form) {
+            form.querySelector('[name="title"]').value = book.book;
+            form.querySelector('[name="author"]').value = book.bookauthor;
+            form.querySelector('[name="category"]').value = book.bookType;
+            form.querySelector('[name="isbn"]').value = book.isbn;
+            form.querySelector('[name="bookUrl"]').value = book.bookurl;
+            
+            // Change form submission to update instead of add
+            form.dataset.editIndex = index;
+            form.dataset.mode = 'edit';
+            
+            // Update button text
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.textContent = 'Update Book';
+            }
+        }
+        
+        this.showAddBookModal();
     }
 
     // Logout admin
@@ -824,4 +1442,14 @@ function showAddCategoryModal() {
 
 function closeModal(modalId) {
     if (adminPanel) adminPanel.closeModal(modalId);
+}
+
+function closeBookModal() {
+    if (adminPanel) adminPanel.closeBookModal();
+}
+
+function downloadBook() {
+    if (adminPanel && adminPanel.currentBookIndex !== null) {
+        adminPanel.downloadBook(adminPanel.currentBookIndex);
+    }
 } 

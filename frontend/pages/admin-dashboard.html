@@ -6,6 +6,7 @@
     <title>Admin Dashboard - Magenta</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/modal.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -180,10 +181,14 @@
             <!-- Users Tab -->
             <div class="admin-tab" id="users">
                 <div class="admin-tab-header">
-                    <h1>User Management</h1>
-                    <button class="btn btn-primary" onclick="showAddUserModal()">
-                        <i class="fas fa-plus"></i> Add New User
-                    </button>
+                    <div class="header-content">
+                        <h1>User Management</h1>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="showAddUserModal()">
+                                <i class="fas fa-plus"></i> Add New User
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="admin-filters">
@@ -224,10 +229,17 @@
             <!-- Books Tab -->
             <div class="admin-tab" id="books">
                 <div class="admin-tab-header">
-                    <h1>Book Management</h1>
-                    <button class="btn btn-primary" onclick="showAddBookModal()">
-                        <i class="fas fa-plus"></i> Add New Book
-                    </button>
+                    <div class="header-content">
+                        <h1>Book Management</h1>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" onclick="adminPanel.switchToLocalStorageMode()">
+                                <i class="fas fa-database"></i> Local Storage Mode
+                            </button>
+                            <button class="btn btn-primary" onclick="showAddBookModal()">
+                                <i class="fas fa-plus"></i> Add New Book
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="admin-filters">
@@ -240,6 +252,12 @@
                             <option value="Qur'an">Qur'an</option>
                             <option value="Arabic">Arabic</option>
                             <option value="Hadith">Hadith</option>
+                            <option value="Anime">Anime</option>
+                            <option value="Programming">Programming</option>
+                            <option value="Fiction">Fiction</option>
+                            <option value="Non-Fiction">Non-Fiction</option>
+                            <option value="Science">Science</option>
+                            <option value="Other">Other</option>
                         </select>
                         <select id="bookStatusFilter">
                             <option value="">All Status</option>
@@ -255,10 +273,9 @@
                             <tr>
                                 <th>Book</th>
                                 <th>Author</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th>Status</th>
+                                <th>Category/Type</th>
+                                <th>ISBN</th>
+                                <th>Price/Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -313,10 +330,14 @@
             <!-- Categories Tab -->
             <div class="admin-tab" id="categories">
                 <div class="admin-tab-header">
-                    <h1>Category Management</h1>
-                    <button class="btn btn-primary" onclick="showAddCategoryModal()">
-                        <i class="fas fa-plus"></i> Add New Category
-                    </button>
+                    <div class="header-content">
+                        <h1>Category Management</h1>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="showAddCategoryModal()">
+                                <i class="fas fa-plus"></i> Add New Category
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="categories-grid" id="categoriesGrid">
@@ -469,60 +490,210 @@
 
     <!-- Add Book Modal -->
     <div class="modal" id="addBookModal">
-        <div class="modal-content">
+        <div class="modal-content add-book-modal">
             <div class="modal-header">
-                <h2>Add New Book</h2>
+                <h2><i class="fas fa-plus-circle"></i> Add New Book</h2>
                 <button class="modal-close" onclick="closeModal('addBookModal')">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form class="modal-form" id="addBookForm">
-                <div class="form-group">
-                    <label>Book Title</label>
-                    <input type="text" name="title" required>
+            <form class="modal-form modern-form" id="addBookForm">
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+                        <p>Enter the essential details about the book</p>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookTitle">
+                                <i class="fas fa-book"></i> Book Title *
+                            </label>
+                            <input type="text" id="bookTitle" name="title" required placeholder="Enter book title">
+                        </div>
+                        <div class="form-group">
+                            <label for="bookAuthor">
+                                <i class="fas fa-user"></i> Author *
+                            </label>
+                            <input type="text" id="bookAuthor" name="author" required placeholder="Enter author name">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookCategory">
+                                <i class="fas fa-tags"></i> Category *
+                            </label>
+                            <select id="bookCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Aqeedah">Aqeedah</option>
+                                <option value="Fiqh">Fiqh</option>
+                                <option value="Qur'an">Qur'an</option>
+                                <option value="Arabic">Arabic</option>
+                                <option value="Hadith">Hadith</option>
+                                <option value="Anime">Anime</option>
+                                <option value="Programming">Programming</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="Non-Fiction">Non-Fiction</option>
+                                <option value="Science">Science</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookIsbn">
+                                <i class="fas fa-barcode"></i> ISBN
+                            </label>
+                            <input type="text" id="bookIsbn" name="isbn" placeholder="ISBN Number (10/13 digits)">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Author</label>
-                    <input type="text" name="author" required>
+
+                <!-- Pricing & Stock Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-dollar-sign"></i> Pricing & Stock</h3>
+                        <p>Set the price and stock information</p>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookPrice">
+                                <i class="fas fa-tag"></i> Price *
+                            </label>
+                            <div class="input-with-icon">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="bookPrice" name="price" step="0.01" required placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookStock">
+                                <i class="fas fa-boxes"></i> Stock *
+                            </label>
+                            <input type="number" id="bookStock" name="stock" required placeholder="Available quantity">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Category</label>
-                    <select name="category" required>
-                        <option value="">Select Category</option>
-                        <option value="Aqeedah">Aqeedah</option>
-                        <option value="Fiqh">Fiqh</option>
-                        <option value="Qur'an">Qur'an</option>
-                        <option value="Arabic">Arabic</option>
-                        <option value="Hadith">Hadith</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Price</label>
-                        <input type="number" name="price" step="0.01" required>
+
+                <!-- Digital Content Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-link"></i> Digital Content</h3>
+                        <p>Add digital resources and links</p>
                     </div>
                     <div class="form-group">
-                        <label>Stock</label>
-                        <input type="number" name="stock" required>
+                        <label for="bookUrl">
+                            <i class="fas fa-globe"></i> Book URL
+                        </label>
+                        <input type="url" id="bookUrl" name="bookUrl" placeholder="https://example.com/book.pdf">
+                        <small class="form-help">Direct link to the book file or webpage</small>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" rows="4"></textarea>
+
+                <!-- Description Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-align-left"></i> Description</h3>
+                        <p>Provide a detailed description of the book</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookDescription">
+                            <i class="fas fa-file-text"></i> Book Description
+                        </label>
+                        <textarea id="bookDescription" name="description" rows="4" placeholder="Enter a detailed description of the book..."></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span> / 500 characters
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Cover Image</label>
-                    <input type="file" name="coverImage" accept="image/*">
+
+                <!-- Media Upload Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-upload"></i> Media Files</h3>
+                        <p>Upload cover image and book files</p>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="coverImage">
+                                <i class="fas fa-image"></i> Cover Image
+                            </label>
+                            <div class="file-upload-container">
+                                <input type="file" id="coverImage" name="coverImage" accept="image/*">
+                                <div class="file-upload-preview">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Click to upload cover image</span>
+                                    <small>JPG, PNG, GIF up to 5MB</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookPdf">
+                                <i class="fas fa-file-pdf"></i> Book PDF
+                            </label>
+                            <div class="file-upload-container">
+                                <input type="file" id="bookPdf" name="bookPdf" accept="application/pdf">
+                                <div class="file-upload-preview">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Click to upload PDF</span>
+                                    <small>PDF files up to 50MB</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Book PDF (optional)</label>
-                    <input type="file" name="bookPdf" accept="application/pdf">
+
+                <!-- Additional Options Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-cog"></i> Additional Options</h3>
+                        <p>Set additional book preferences</p>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bookFeatured" name="featured">
+                                <span class="checkmark"></span>
+                                <i class="fas fa-star"></i> Featured Book
+                            </label>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="bookAvailable" name="available" checked>
+                                <span class="checkmark"></span>
+                                <i class="fas fa-check-circle"></i> Available for Purchase
+                            </label>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('addBookModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Book</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addBookModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Book
+                    </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Book Viewer Modal -->
+    <div class="modal" id="bookViewerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalBookTitle">Book Details</h2>
+                <button class="modal-close" onclick="closeBookModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBookContent">
+                <!-- Book details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeBookModal()">Close</button>
+                <button class="btn btn-primary" id="downloadBookBtn" onclick="downloadBook()" style="display: none;">
+                    <i class="fas fa-download"></i> Download Book
+                </button>
+            </div>
         </div>
     </div>
 
