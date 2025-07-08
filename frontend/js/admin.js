@@ -927,7 +927,13 @@ class AdminPanel {
                 bookauthor: bookData.author,
                 bookType: bookData.category,
                 isbn: bookData.isbn || '',
-                bookurl: bookData.bookUrl || ''
+                bookurl: bookData.bookUrl || '',
+                price: bookData.price,
+                stock: bookData.stock,
+                bookDescription: bookData.bookDescription || '',
+                featured: bookData.featured || false,
+                available: bookData.available || false,
+                coverImage: uploadedCoverImage || books[index].coverImage // keep old if not changed
             };
             
             localStorage.setItem('shelfOfBooks', JSON.stringify(books));
@@ -1263,16 +1269,23 @@ class AdminPanel {
             form.querySelector('[name="category"]').value = book.bookType;
             form.querySelector('[name="isbn"]').value = book.isbn;
             form.querySelector('[name="bookUrl"]').value = book.bookurl;
-            
-            // Change form submission to update instead of add
+            form.querySelector('[name="price"]').value = book.price;
+            form.querySelector('[name="stock"]').value = book.stock;
+            form.querySelector('[name="description"]').value = book.bookDescription || '';
+            form.querySelector('[name="featured"]').checked = !!book.featured;
+            form.querySelector('[name="available"]').checked = !!book.available;
+            uploadedCoverImage = book.coverImage || '';
+            if (coverImagePreview) {
+                if (uploadedCoverImage) {
+                    coverImagePreview.innerHTML = `<img src='${uploadedCoverImage}' alt='Book Cover' style='max-width:100px;max-height:140px;border-radius:8px;'>`;
+                } else {
+                    coverImagePreview.innerHTML = '';
+                }
+            }
             form.dataset.editIndex = index;
             form.dataset.mode = 'edit';
-            
-            // Update button text
             const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.textContent = 'Update Book';
-            }
+            if (submitBtn) submitBtn.textContent = 'Update Book';
         }
         
         this.showAddBookModal();

@@ -263,7 +263,8 @@ libraryForm.addEventListener("submit", (e) => {
         isFavorite: favorite.checked,
         isRead: read.checked,
         dateAdded: new Date().toISOString(),
-        lastModified: new Date().toISOString()
+        lastModified: new Date().toISOString(),
+        coverImage: uploadedBookImage // <-- new field
     };
 
     objOfBook.push(bookObj);
@@ -389,6 +390,12 @@ function editBook(index) {
   bookDescription.value = bookDetails.bookDescription || '';
   favorite.checked = !!bookDetails.favorite;
   read.checked = !!bookDetails.readStatus;
+  uploadedBookImage = bookDetails.coverImage || '';
+  if (uploadedBookImage) {
+      bookImagePreview.innerHTML = `<img src='${uploadedBookImage}' alt='Book Cover' style='max-width:100px;max-height:140px;border-radius:8px;'>`;
+  } else {
+      bookImagePreview.innerHTML = '';
+  }
 
   // Set the correct radio button for bookType
   const typeOptions = document.querySelectorAll('input[name="type"]');
