@@ -880,7 +880,7 @@ class AdminPanel {
             // Add book to localStorage
             const bookData = {};
             formData.forEach((value, key) => { bookData[key] = value; });
-            this.addBookToLocalStorage(bookData);
+            this.addBookToData(bookData);
             this.closeModal('addBookModal');
             return;
         }
@@ -1216,34 +1216,12 @@ class AdminPanel {
     }
 
     // Add book to localStorage (from management.html functionality)
-    addBookToLocalStorage(bookData) {
-        const books = JSON.parse(localStorage.getItem('shelfOfBooks') || '[]');
-        
-        const newBook = {
-            book: bookData.title,
-            bookauthor: bookData.author,
-            bookType: bookData.category,
-            isbn: bookData.isbn || '',
-            edition: bookData.edition || '',
-            publicationDate: bookData.publicationDate || '',
-            bookurl: bookData.bookUrl || '',
-            price: bookData.price,
-            stock: bookData.stock,
-            bookDescription: bookData.bookDescription || '',
-            featured: bookData.featured || false,
-            available: bookData.available || false,
-            coverImage: bookData.coverImage || '',
-            favorite: bookData.favorite || false,
-            read: bookData.read || false,
-            addedDate: new Date().toISOString()
-        };
-        
-        books.push(newBook);
-        localStorage.setItem('shelfOfBooks', JSON.stringify(books));
-        
-        this.showSuccess('Book added successfully to local storage!');
-        this.loadBooks(); // Reload the books table
-        this.resetAddBookForm();
+    addBookToData(bookData) {
+        const maxId = window.booksData.reduce((max, b) => Math.max(max, b.id), 0);
+        bookData.id = maxId + 1;
+        window.booksData.push(bookData);
+        window.syncBooksDataToLocalStorage();
+        this.loadBooks();
     }
 
     // Remove book from localStorage
@@ -1304,6 +1282,20 @@ class AdminPanel {
         }
         
         this.showAddBookModal();
+    }
+
+    // Replace editBookFromLocalStorage and removeBookFromLocalStorage with new methods:
+    editBookFromData(index, updatedFields) {
+        if (window.booksData[index]) {
+            window.booksData[index] = { ...window.booksData[index], ...updatedFields };
+            window.syncBooksDataToLocalStorage();
+            this.loadBooks();
+        }
+    }
+    removeBookFromData(index) {
+        window.booksData.splice(index, 1);
+        window.syncBooksDataToLocalStorage();
+        this.loadBooks();
     }
 
     // Reset add/edit book form and modal state

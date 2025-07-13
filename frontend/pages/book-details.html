@@ -196,8 +196,8 @@
                                     </div>
                                 </div>
                                 <div class="action-buttons">
-                                    <button class="btn btn-primary btn-large" onclick="addToCart()">
-                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    <button class="btn btn-primary btn-large" onclick="addToCart(); window.location.href='cart.html';">
+                                        <i class="fas fa-bolt"></i> Buy Now
                                     </button>
                                     <button class="btn btn-secondary" onclick="toggleWishlist()">
                                         <i class="fas fa-heart"></i> Add to Wishlist
@@ -454,6 +454,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="../js/booksData.js"></script>
     <script src="../js/main.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/cart.js"></script>

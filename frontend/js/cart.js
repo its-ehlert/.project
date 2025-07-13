@@ -86,25 +86,15 @@ class ShoppingCart {
         if (this.cart.length === 0) {
             return [];
         }
-
-        try {
-            const bookIds = this.cart.map(item => item.bookId);
-            const books = await this.fetchBooksByIds(bookIds);
-            
-            return this.cart.map(cartItem => {
-                const book = books.find(b => b.id === cartItem.bookId);
-                return {
-                    ...cartItem,
-                    book: book || null
-                };
-            });
-        } catch (error) {
-            console.error('Error fetching cart items:', error);
-            return this.cart.map(cartItem => ({
+        // Use window.booksData for all book lookups
+        const books = window.booksData || [];
+        return this.cart.map(cartItem => {
+            const book = books.find(b => b.id == cartItem.bookId);
+            return {
                 ...cartItem,
-                book: null
-            }));
-        }
+                book: book || null
+            };
+        });
     }
 
     // Fetch books by IDs
@@ -300,12 +290,13 @@ class ShoppingCart {
     // Create cart item HTML
     createCartItemHTML(item) {
         if (!item.book) {
+            // No fallback to localStorage, just show not available
             return `
                 <div class="cart-item" data-book-id="${item.bookId}">
                     <div class="cart-item-content">
                         <p>Book information not available</p>
-                        <button class="remove-item" onclick="cart.removeItem(${item.bookId})">
-                            <i class="fas fa-trash"></i> Remove
+                        <button class="remove-item icon-only" onclick="cart.removeItem(${item.bookId})" title="Remove">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>

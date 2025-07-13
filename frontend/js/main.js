@@ -208,10 +208,10 @@ function createBookCard(book) {
                     ${discount}
                 </div>
                 <div class="book-actions">
-                    <button class="btn-add-cart" onclick="addToCart(${book.id})">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    <button class="btn-add-cart icon-only" onclick="addToCart(${book.id})" title="Add to Cart">
+                        <i class="fas fa-shopping-cart"></i>
                     </button>
-                    <button class="btn-wishlist" onclick="toggleWishlist(${book.id})">
+                    <button class="btn-wishlist" onclick="toggleWishlist(${book.id})" title="Add to Wishlist">
                         <i class="fas fa-heart"></i>
                     </button>
                 </div>
@@ -402,103 +402,15 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Sample data functions (replace with actual API calls)
+// Remove any fallback to localStorage for book info
+// All book info should come from window.booksData only
 function getFeaturedBooks() {
-    return [
-        {
-            id: 1,
-            title: "The Great Gatsby",
-            author: "F. Scott Fitzgerald",
-            price: 1754,
-            original_price: 2159,
-            discount_percentage: 19,
-            rating: 4.5,
-            review_count: 1250,
-            cover_image_url: "images/book1.jpg"
-        },
-        {
-            id: 2,
-            title: "To Kill a Mockingbird",
-            author: "Harper Lee",
-            price: 2024,
-            original_price: 2024,
-            discount_percentage: 0,
-            rating: 4.8,
-            review_count: 2100,
-            cover_image_url: "images/book2.jpg"
-        },
-        {
-            id: 3,
-            title: "1984",
-            author: "George Orwell",
-            price: 1619,
-            original_price: 1889,
-            discount_percentage: 14,
-            rating: 4.6,
-            review_count: 1800,
-            cover_image_url: "images/book3.jpg"
-        },
-        {
-            id: 4,
-            title: "The Catcher in the Rye",
-            author: "J.D. Salinger",
-            price: 1889,
-            original_price: 1889,
-            discount_percentage: 0,
-            rating: 4.3,
-            review_count: 950,
-            cover_image_url: "images/book4.jpg"
-        }
-    ];
+    // Example: return first 4 books as featured
+    return window.booksData.slice(0, 4);
 }
-
 function getBestsellers() {
-    return [
-        {
-            id: 5,
-            title: "The Alchemist",
-            author: "Paulo Coelho",
-            price: 2159,
-            original_price: 2564,
-            discount_percentage: 16,
-            rating: 4.7,
-            review_count: 3200,
-            cover_image_url: "images/book5.jpg"
-        },
-        {
-            id: 6,
-            title: "Pride and Prejudice",
-            author: "Jane Austen",
-            price: 1349,
-            original_price: 1754,
-            discount_percentage: 23,
-            rating: 4.4,
-            review_count: 1600,
-            cover_image_url: "images/book6.jpg"
-        },
-        {
-            id: 7,
-            title: "The Hobbit",
-            author: "J.R.R. Tolkien",
-            price: 2294,
-            original_price: 2294,
-            discount_percentage: 0,
-            rating: 4.9,
-            review_count: 2800,
-            cover_image_url: "images/book7.jpg"
-        },
-        {
-            id: 8,
-            title: "The Lord of the Rings",
-            author: "J.R.R. Tolkien",
-            price: 3374,
-            original_price: 4049,
-            discount_percentage: 17,
-            rating: 4.8,
-            review_count: 3500,
-            cover_image_url: "images/book8.jpg"
-        }
-    ];
+    // Example: return next 4 books as bestsellers
+    return window.booksData.slice(4, 8);
 }
 
 // Add CSS animations for notifications
