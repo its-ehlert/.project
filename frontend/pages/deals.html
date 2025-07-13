@@ -218,9 +218,13 @@
                             <span class="dropdown-arrow">&#9662;</span>
                           </div>
                           <div id="dropdownPanel" class="dropdown-panel" style="display:none;">
-                            <button type="button" id="dropdownPrev" class="slider-arrow" aria-label="Previous category">&#8592;</button>
+                            <button type="button" id="dropdownPrev" class="slider-arrow" aria-label="Previous category">
+                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 6L9 12L15 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
                             <span id="dropdownCurrentCategory" class="slider-category"></span>
-                            <button type="button" id="dropdownNext" class="slider-arrow" aria-label="Next category">&#8594;</button>
+                            <button type="button" id="dropdownNext" class="slider-arrow" aria-label="Next category">
+                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6L15 12L9 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
                             <button type="button" id="dropdownAddBtn" class="slider-add">Add</button>
                           </div>
                         </div>
@@ -371,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
       renderSelectedCategories();
       updateDropdownButtonText();
       updateDropdownCategory();
+      closeDropdown(); // Close after adding
     }
   };
   // Close dropdown when clicking outside
@@ -503,22 +508,37 @@ document.addEventListener('DOMContentLoaded', function() {
         padding: 12px 10px;
       }
       .slider-arrow {
-        background: #232347;
+        background: linear-gradient(90deg, #7b5cff, #5cafff);
         color: #fff;
         border: none;
         border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        font-size: 1.2rem;
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(123,92,255,0.10);
         cursor: pointer;
-        transition: background 0.2s;
+        transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+        outline: none;
+        margin: 0 4px;
+        padding: 0;
       }
-      .slider-arrow:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+      .slider-arrow svg {
+        width: 22px;
+        height: 22px;
+        display: block;
+      }
+      .slider-arrow:active {
+        transform: scale(0.95);
+      }
+      .slider-arrow:focus {
+        box-shadow: 0 0 0 2px #7b5cff55;
       }
       .slider-arrow:hover:not(:disabled) {
-        background: #7b5cff;
+        background: linear-gradient(90deg, #5cafff, #7b5cff);
+        box-shadow: 0 4px 16px rgba(92,175,255,0.18);
       }
       .slider-category {
         flex: 1;
