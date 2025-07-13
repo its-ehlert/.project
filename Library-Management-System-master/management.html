@@ -529,6 +529,31 @@
         </div>
     </div>
 
+    <!-- Add Profile Modal -->
+    <div class="modal" id="profileModal" style="display:none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Profile</h2>
+          <button class="modal-close" onclick="closeProfileModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+          <p>This is a placeholder for the admin profile information.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Add Settings Modal -->
+    <div class="modal" id="settingsModal" style="display:none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="modal-close" onclick="closeSettingsModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+          <p>This is a placeholder for admin settings.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Message shown on successful adding of book -->
     <div class="notification" id="message"></div>
 
@@ -662,7 +687,6 @@
                             <div class="item-info">
                                 <h4>${book.book}</h4>
                                 <p>${book.bookauthor}</p>
-                                <span class="item-type">${book.bookType}</span>
                             </div>
                         </div>
                     `).join('');
@@ -1143,6 +1167,36 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded, initializing dashboard...');
             dashboard = new ManagementDashboard();
+            const viewAllLink = document.querySelector('.view-all[href="#books"]');
+            if (viewAllLink) {
+                viewAllLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dashboard.switchTab('books');
+                });
+            }
+            // Admin dropdown menu handlers
+            const profileLink = document.querySelector('.admin-dropdown-menu a[href="#profile"]');
+            const settingsLink = document.querySelector('.admin-dropdown-menu a[href="#settings"]');
+            const logoutLink = document.getElementById('adminLogout');
+            if (profileLink) {
+                profileLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('profileModal').style.display = 'flex';
+                });
+            }
+            if (settingsLink) {
+                settingsLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('settingsModal').style.display = 'flex';
+                });
+            }
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.clear();
+                    location.reload();
+                });
+            }
         });
 
         // Global functions for button clicks
@@ -1166,6 +1220,14 @@
             if (dashboard.currentBookIndex !== null) {
                 dashboard.downloadBook(dashboard.currentBookIndex);
             }
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'none';
         }
     </script>
 </body>
