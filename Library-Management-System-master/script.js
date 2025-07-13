@@ -52,6 +52,7 @@ function initializeForm() {
         author.addEventListener('input', validateAuthor);
     }
     
+    // In initializeForm, remove isbn.addEventListener('input', validateISBN);
     if (isbn) {
         isbn.addEventListener('input', validateISBN);
     }
@@ -105,41 +106,24 @@ function validateAuthor() {
     return isValid;
 }
 
+// In validateISBN and isValidISBN functions, comment out their bodies or make them always return true
 function validateISBN() {
     const value = this.value.trim();
     if (value === '') return true; // ISBN is optional
     
-    const isValid = isValidISBN(value);
+    // const isValid = isValidISBN(value); // Comment out or remove isValidISBN call
     
-    if (isValid) {
-        this.style.borderColor = '#667eea';
-        this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-    } else {
-        this.style.borderColor = '#e74c3c';
-        this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
-    }
+    // if (isValid) { // Comment out or remove isValid check
+    //     this.style.borderColor = '#667eea';
+    //     this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+    // } else {
+    //     this.style.borderColor = '#e74c3c';
+    //     this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+    // }
     
-    return isValid;
+    return true; // Always return true to disable validation
 }
 
-function validateURL() {
-    const value = this.value.trim();
-    if (value === '') return true; // URL is optional
-    
-    const isValid = isValidURL(value);
-    
-    if (isValid) {
-        this.style.borderColor = '#667eea';
-        this.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
-    } else {
-        this.style.borderColor = '#e74c3c';
-        this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
-    }
-    
-    return isValid;
-}
-
-// Enhanced validation functions
 function isValidISBN(subject) {
     if (!subject) return true; // Empty ISBN is valid (optional field)
     
@@ -202,10 +186,10 @@ libraryForm.addEventListener("submit", (e) => {
     }
 
     // Check if ISBN is valid
-    if (isbn.value && !isValidISBN(isbn.value)) {
-        showNotification('Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.', 'error');
-        return;
-    }
+    // if (isbn.value && !isValidISBN(isbn.value)) { // Comment out or remove isValidISBN check
+    //     showNotification('Invalid ISBN format. Please enter a valid 10 or 13 digit ISBN.', 'error');
+    //     return;
+    // }
 
     // Get selected book type
     const selectedType = document.querySelector('input[name="type"]:checked');

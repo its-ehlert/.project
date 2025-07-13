@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/responsive.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 </head>
 <body>
     <!-- Header -->
@@ -29,16 +30,11 @@
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link">Categories <i class="fas fa-chevron-down"></i></a>
                             <ul class="dropdown-menu">
-                                <li><a href="category.html?cat=fiction">Fiction</a></li>
-                                <li><a href="category.html?cat=non-fiction">Non-Fiction</a></li>
-                                <li><a href="category.html?cat=sci-fi">Science Fiction</a></li>
-                                <li><a href="category.html?cat=mystery">Mystery & Thriller</a></li>
-                                <li><a href="category.html?cat=romance">Romance</a></li>
-                                <li><a href="category.html?cat=biography">Biography</a></li>
-                                <li><a href="category.html?cat=history">History</a></li>
-                                <li><a href="category.html?cat=self-help">Self-Help</a></li>
-                                <li><a href="category.html?cat=business">Business</a></li>
-                                <li><a href="category.html?cat=technology">Technology</a></li>
+                                <li><a href="category.html?cat=Aqeedah">Aqeedah</a></li>
+                                <li><a href="category.html?cat=Fiqh">Fiqh</a></li>
+                                <li><a href="category.html?cat=Qur'an">Qur'an</a></li>
+                                <li><a href="category.html?cat=Arabic">Arabic</a></li>
+                                <li><a href="category.html?cat=Hadith">Hadith</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -215,14 +211,22 @@
                     </div>
                     <div class="form-group">
                         <label for="alertCategories"><i class="fas fa-list"></i> Categories of Interest</label>
-                        <select id="alertCategories" multiple required>
-                            <option value="fiction">Fiction</option>
-                            <option value="non-fiction">Non-Fiction</option>
-                            <option value="mystery">Mystery & Thriller</option>
-                            <option value="romance">Romance</option>
-                            <option value="business">Business</option>
-                            <option value="self-help">Self-Help</option>
-                        </select>
+                        <!-- Custom dropdown slider multi-select start -->
+                        <div id="customDropdownContainer" class="custom-dropdown-container">
+                          <div id="dropdownButton" class="dropdown-button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+                            <span id="dropdownButtonText">Select categories</span>
+                            <span class="dropdown-arrow">&#9662;</span>
+                          </div>
+                          <div id="dropdownPanel" class="dropdown-panel" style="display:none;">
+                            <button type="button" id="dropdownPrev" class="slider-arrow" aria-label="Previous category">&#8592;</button>
+                            <span id="dropdownCurrentCategory" class="slider-category"></span>
+                            <button type="button" id="dropdownNext" class="slider-arrow" aria-label="Next category">&#8594;</button>
+                            <button type="button" id="dropdownAddBtn" class="slider-add">Add</button>
+                          </div>
+                        </div>
+                        <div id="selectedCategoriesContainer"></div>
+                        <div id="selectedCategoriesInputs"></div>
+                        <!-- Custom dropdown slider multi-select end -->
                     </div>
                     <button type="submit" class="btn btn-primary">Subscribe to Alerts</button>
                     <div id="dealAlertMessage" style="display:none;margin-top:1rem;"></div>
@@ -265,69 +269,314 @@ document.addEventListener('DOMContentLoaded', function() {
         form.reset();
     });
 });
+// Custom dropdown slider multi-select logic
+const categories = [
+  { value: 'Aqeedah', label: 'Aqeedah' },
+  { value: 'Fiqh', label: 'Fiqh' },
+  { value: "Qur'an", label: "Qur'an" },
+  { value: 'Arabic', label: 'Arabic' },
+  { value: 'Hadith', label: 'Hadith' }
+];
+let currentCategoryIndex = 0;
+let selectedCategories = [];
+
+function updateDropdownCategory() {
+  const cat = categories[currentCategoryIndex];
+  document.getElementById('dropdownCurrentCategory').textContent = cat.label;
+  document.getElementById('dropdownAddBtn').disabled = selectedCategories.includes(cat.value);
+}
+
+function renderSelectedCategories() {
+  const container = document.getElementById('selectedCategoriesContainer');
+  const inputs = document.getElementById('selectedCategoriesInputs');
+  container.innerHTML = '';
+  inputs.innerHTML = '';
+  selectedCategories.forEach(val => {
+    const cat = categories.find(c => c.value === val);
+    const tag = document.createElement('span');
+    tag.className = 'selected-category-tag';
+    tag.textContent = cat ? cat.label : val;
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'remove-category-btn';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.onclick = () => {
+      selectedCategories = selectedCategories.filter(v => v !== val);
+      renderSelectedCategories();
+      updateDropdownButtonText();
+      updateDropdownCategory();
+    };
+    tag.appendChild(removeBtn);
+    container.appendChild(tag);
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'alertCategories[]';
+    input.value = val;
+    inputs.appendChild(input);
+  });
+}
+
+function updateDropdownButtonText() {
+  const btnText = document.getElementById('dropdownButtonText');
+  if (selectedCategories.length === 0) {
+    btnText.textContent = 'Select categories';
+  } else if (selectedCategories.length === 1) {
+    const cat = categories.find(c => c.value === selectedCategories[0]);
+    btnText.textContent = cat ? cat.label : selectedCategories[0];
+  } else {
+    btnText.textContent = `${selectedCategories.length} categories selected`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Dropdown logic
+  updateDropdownCategory();
+  renderSelectedCategories();
+  updateDropdownButtonText();
+  const dropdownButton = document.getElementById('dropdownButton');
+  const dropdownPanel = document.getElementById('dropdownPanel');
+  let dropdownOpen = false;
+
+  function openDropdown() {
+    dropdownPanel.style.display = 'flex';
+    dropdownButton.setAttribute('aria-expanded', 'true');
+    dropdownOpen = true;
+  }
+  function closeDropdown() {
+    dropdownPanel.style.display = 'none';
+    dropdownButton.setAttribute('aria-expanded', 'false');
+    dropdownOpen = false;
+  }
+  dropdownButton.onclick = function(e) {
+    dropdownOpen ? closeDropdown() : openDropdown();
+  };
+  dropdownButton.onkeydown = function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      dropdownOpen ? closeDropdown() : openDropdown();
+    }
+  };
+  document.getElementById('dropdownPrev').onclick = function() {
+    currentCategoryIndex = (currentCategoryIndex - 1 + categories.length) % categories.length;
+    updateDropdownCategory();
+  };
+  document.getElementById('dropdownNext').onclick = function() {
+    currentCategoryIndex = (currentCategoryIndex + 1) % categories.length;
+    updateDropdownCategory();
+  };
+  document.getElementById('dropdownAddBtn').onclick = function() {
+    const val = categories[currentCategoryIndex].value;
+    if (!selectedCategories.includes(val)) {
+      selectedCategories.push(val);
+      renderSelectedCategories();
+      updateDropdownButtonText();
+      updateDropdownCategory();
+    }
+  };
+  // Close dropdown when clicking outside
+  document.addEventListener('mousedown', function(e) {
+    if (!document.getElementById('customDropdownContainer').contains(e.target)) {
+      closeDropdown();
+    }
+  });
+  // On form submit, validate at least one selected
+  const form = document.getElementById('dealAlertForm');
+  const emailInput = document.getElementById('alertEmail');
+  const messageDiv = document.getElementById('dealAlertMessage');
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    messageDiv.style.display = 'none';
+    messageDiv.className = '';
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      messageDiv.textContent = 'Please enter a valid email address.';
+      messageDiv.style.display = 'block';
+      messageDiv.style.color = '#e74c3c';
+      return;
+    }
+    if (selectedCategories.length === 0) {
+      messageDiv.textContent = 'Please select at least one category.';
+      messageDiv.style.display = 'block';
+      messageDiv.style.color = '#e74c3c';
+      return;
+    }
+    messageDiv.textContent = 'Thank you for subscribing to deal alerts!';
+    messageDiv.style.display = 'block';
+    messageDiv.style.color = '#2bff05';
+    form.reset();
+    selectedCategories = [];
+    renderSelectedCategories();
+    updateDropdownButtonText();
+    updateDropdownCategory();
+  });
+});
 </script>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Magenta</h3>
-                    <p>Your trusted source for quality books and exceptional reading experiences.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="about.html">About Us</a></li>
-                        <li><a href="contact.html">Contact</a></li>
-                        <li><a href="faq.html">FAQ</a></li>
-                        <li><a href="blog.html">Blog</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Customer Service</h4>
-                    <ul>
-                        <li><a href="shipping.html">Shipping Info</a></li>
-                        <li><a href="returns.html">Returns</a></li>
-                        <li><a href="privacy.html">Privacy Policy</a></li>
-                        <li><a href="terms.html">Terms of Service</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Contact Info</h4>
-                    <div class="contact-info">
-                        <p><i class="fas fa-phone"></i> +254123456789</p>
-                        <p><i class="fas fa-envelope"></i> info@Magenta.com</p>
-                        <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Magenta. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Loading Spinner -->
-    <div class="loading-spinner" id="loadingSpinner">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="../js/main.js"></script>
-    <script src="../js/api.js"></script>
-    <script src="../js/cart.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/deals.js"></script>
+    <style>
+      /* Custom modern dark select styling for #alertCategories */
+      #alertCategories {
+        width: 100%;
+        min-height: 120px;
+        background: #18183a;
+        color: #fff;
+        border: 2px solid #444;
+        border-radius: 10px;
+        padding: 12px 40px 12px 16px;
+        font-size: 1rem;
+        font-family: inherit;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        position: relative;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 18px 18px;
+      }
+      #alertCategories:focus {
+        border-color: #7b5cff;
+        box-shadow: 0 0 0 2px #7b5cff44;
+      }
+      #alertCategories option {
+        background: #232347;
+        color: #fff;
+        padding: 8px;
+      }
+      /* Remove default arrow in some browsers */
+      select[multiple]::-ms-expand {
+        display: none;
+      }
+      select[multiple]::-webkit-scrollbar {
+        width: 8px;
+        background: #232347;
+      }
+      select[multiple]::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 4px;
+      }
+      /* Custom dropdown slider multi-select styles */
+      .custom-dropdown-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+      .dropdown-button {
+        width: 100%;
+        background: #18183a;
+        color: #fff;
+        border: 2px solid #444;
+        border-radius: 10px;
+        padding: 12px 40px 12px 16px;
+        font-size: 1rem;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+      .dropdown-button:focus {
+        border-color: #7b5cff;
+        box-shadow: 0 0 0 2px #7b5cff44;
+      }
+      .dropdown-arrow {
+        margin-left: 10px;
+        font-size: 1.2rem;
+      }
+      .dropdown-panel {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        width: 100%;
+        background: #18183a;
+        border: 2px solid #444;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 12px 10px;
+      }
+      .slider-arrow {
+        background: #232347;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .slider-arrow:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .slider-arrow:hover:not(:disabled) {
+        background: #7b5cff;
+      }
+      .slider-category {
+        flex: 1;
+        text-align: center;
+        font-size: 1.1rem;
+        color: #fff;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+      .slider-add {
+        background: linear-gradient(90deg, #7b5cff, #ff5ca7);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 18px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .slider-add:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      #selectedCategoriesContainer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .selected-category-tag {
+        background: #232347;
+        color: #fff;
+        border-radius: 6px;
+        padding: 4px 12px 4px 8px;
+        display: flex;
+        align-items: center;
+        font-size: 0.98rem;
+        position: relative;
+      }
+      .remove-category-btn {
+        background: none;
+        border: none;
+        color: #ff5ca7;
+        font-size: 1.1rem;
+        margin-left: 6px;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+      .remove-category-btn:hover {
+        background: #7b5cff33;
+      }
+    </style>
 </body>
 </html> 

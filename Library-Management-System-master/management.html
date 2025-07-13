@@ -9,6 +9,28 @@
     <link rel="stylesheet" href="../frontend/css/modal.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Make book details modal text lighter and more visible */
+      .book-details .book-header .book-info h3 {
+        color: #fff !important;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+      .book-details .book-header .book-info .author {
+        color: #e0e0e0 !important;
+        font-weight: 400;
+      }
+      .book-details .book-header .book-info .book-type {
+        color: #b39ddb !important;
+        background: #3a2e5a;
+        border-radius: 16px;
+        padding: 2px 14px;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top: 8px;
+        display: inline-block;
+      }
+    </style>
 </head>
 <body class="admin-body">
     <!-- Admin Header -->
@@ -502,10 +524,7 @@
                 <!-- Book details will be loaded here -->
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeBookModal()">Close</button>
-                <button class="btn btn-primary" id="downloadBookBtn" onclick="downloadBook()" style="display: none;">
-                    <i class="fas fa-download"></i> Download Book
-                </button>
+                <!-- Removed Close button -->
             </div>
         </div>
     </div>
@@ -767,16 +786,6 @@
                 // Validation
                 if (!name || !author) {
                     this.showMessage('Book name and author are required!', 'error');
-                    return;
-                }
-
-                if (isbn && !this.isValidIsbn(isbn)) {
-                    this.showMessage('Invalid ISBN number!', 'error');
-                    return;
-                }
-
-                if (bookUrl && !this.isValidUrl(bookUrl)) {
-                    this.showMessage('Invalid URL!', 'error');
                     return;
                 }
 
