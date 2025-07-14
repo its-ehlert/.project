@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initNewsletter();
     loadFeaturedBooks();
     loadBestsellers();
-    updateCartCount();
     updateWishlistCount();
     checkAuthStatus();
 });
@@ -281,7 +280,7 @@ function addToCart(bookId) {
     }
     
     localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
+    ShoppingCart.updateCartCount();
     
     showNotification('Book added to cart!', 'success');
 }
@@ -302,17 +301,6 @@ function toggleWishlist(bookId) {
     
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
     updateWishlistCount();
-}
-
-// Update cart count badge
-function updateCartCount() {
-    const cartCount = document.getElementById('cartCount');
-    if (cartCount) {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        cartCount.textContent = totalItems;
-        cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
-    }
 }
 
 // Update wishlist count badge
@@ -467,3 +455,31 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style); 
+
+// Hide navbar on scroll down, show on scroll up
+let lastScrollY = window.scrollY;
+let header = document.querySelector('.header');
+let ticking = false;
+
+function handleNavScroll() {
+  if (!header) return;
+  const currentScrollY = window.scrollY;
+  if (currentScrollY > lastScrollY && currentScrollY > 50) {
+    // Scrolling down
+    header.style.top = '-100px';
+    header.style.opacity = '0';
+  } else {
+    // Scrolling up
+    header.style.top = '0';
+    header.style.opacity = '1';
+  }
+  lastScrollY = currentScrollY;
+  ticking = false;
+}
+
+window.addEventListener('scroll', function() {
+  if (!ticking) {
+    window.requestAnimationFrame(handleNavScroll);
+    ticking = true;
+  }
+}); 
