@@ -33,40 +33,44 @@
     </style>
 </head>
 <body class="admin-body">
-    <!-- Admin Header -->
-    <header class="admin-header">
-        <div class="admin-header-content">
-            <div class="admin-logo">
-                <i class="fas fa-book-open"></i>
-                <span>Magenta Management</span>
-            </div>
-            
-            <div class="admin-actions">
-                <div class="admin-search">
-                    <input type="text" placeholder="Search books..." id="searchText">
-                    <i class="fas fa-search"></i>
-                </div>
-                
-                <div class="admin-user">
-                    <img src="../frontend/images/admin-avatar.jpg" alt="Admin" id="adminAvatar">
-                    <div class="admin-user-info">
-                        <span id="adminName">Admin User</span>
-                        <span id="adminRole">Administrator</span>
-                    </div>
-                    <div class="admin-dropdown">
-                        <button class="admin-dropdown-btn">
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="admin-dropdown-menu">
-                            <a href="#profile"><i class="fas fa-user"></i> Profile</a>
-                            <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="#" id="adminLogout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div id="admin-login-overlay" style="display:none;position:fixed;z-index:2000;top:0;left:0;width:100vw;height:100vh;background:rgba(30,30,60,0.95);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+      <form id="adminLoginForm" class="modern-form" style="max-width:400px;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,0.3);border-radius:16px;padding:2.5rem 2rem;display:flex;flex-direction:column;gap:1.5rem;background:linear-gradient(135deg,#23243a 0%,#2d2e4a 100%);">
+        <h2 style="color:#fff;text-align:center;margin-bottom:1rem;">Admin Login</h2>
+        <div class="form-group">
+          <label for="adminUsername" style="color:#b0b0b0;">Username</label>
+          <input type="text" id="adminUsername" name="adminUsername" class="input-group" placeholder="Enter username" required autofocus style="width:100%;padding:0.9rem 1rem;border-radius:8px;border:1px solid #444;background:#23243a;color:#fff;font-size:1rem;">
         </div>
-    </header>
+        <div class="form-group">
+          <label for="adminPassword" style="color:#b0b0b0;">Password</label>
+          <input type="password" id="adminPassword" name="adminPassword" class="input-group" placeholder="Enter password" required style="width:100%;padding:0.9rem 1rem;border-radius:8px;border:1px solid #444;background:#23243a;color:#fff;font-size:1rem;">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" style="margin-top:1rem;">Login</button>
+        <div id="adminLoginError" style="color:#e74c3c;text-align:center;display:none;margin-top:0.5rem;font-size:1rem;">Invalid credentials</div>
+      </form>
+    </div>
+    <!-- Admin Header -->
+    <header class="admin-navbar" style="background:#000;box-shadow:none;padding:0;">
+  <div style="display:flex;align-items:center;justify-content:space-between;max-width:100vw;padding:0 2rem;height:60px;">
+    <div style="display:flex;align-items:center;gap:0.7rem;">
+      <img src="../frontend/images/admin-avatar.jpg" alt="Logo" style="width:38px;height:38px;border-radius:8px;background:#222;">
+      <span style="color:#fff;font-size:1.5rem;font-weight:700;letter-spacing:0.04em;">MAGENTA ADMIN</span>
+    </div>
+    <nav style="flex:1;display:flex;justify-content:center;">
+      <ul style="display:flex;gap:2.5rem;list-style:none;margin:0;padding:0;">
+        <li><a href="#dashboard" class="admin-nav-link" style="color:#ccc;font-size:1.1rem;font-weight:500;text-decoration:none;padding:0.5rem 0;">Dashboard</a></li>
+        <li><a href="#books" class="admin-nav-link" style="color:#ccc;font-size:1.1rem;font-weight:500;text-decoration:none;padding:0.5rem 0;">Books</a></li>
+        <li><a href="#add-book" class="admin-nav-link" style="color:#ccc;font-size:1.1rem;font-weight:500;text-decoration:none;padding:0.5rem 0;">Add Book</a></li>
+        <li><a href="#categories" class="admin-nav-link" style="color:#ccc;font-size:1.1rem;font-weight:500;text-decoration:none;padding:0.5rem 0;">Categories</a></li>
+        <li><a href="#reports" class="admin-nav-link" style="color:#ccc;font-size:1.1rem;font-weight:500;text-decoration:none;padding:0.5rem 0;">Reports</a></li>
+        <li><a href="#settings" class="admin-nav-link" style="color:#ccc;font-size:1.1rem;font-weight:500;text-decoration:none;padding:0.5rem 0;">Settings</a></li>
+      </ul>
+    </nav>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button id="adminLogout" style="background:none;border:1px solid #444;color:#fff;font-size:1rem;padding:0.5rem 1.2rem;border-radius:12px;cursor:pointer;transition:background 0.2s;">Sign out</button>
+      <a href="#" style="background:#fff;color:#000;font-weight:600;font-size:1rem;padding:0.5rem 1.3rem;border-radius:12px;display:flex;align-items:center;gap:0.5rem;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,0.08);"><i class="fab fa-windows"></i> Download</a>
+    </div>
+  </div>
+</header>
 
     <!-- Admin Layout -->
     <div class="admin-layout">
